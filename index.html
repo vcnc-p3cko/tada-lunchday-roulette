@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>타다 런치데이 룰렛</title>
+    <meta
+      name="description"
+      content="직원 한 명당 구슬 하나. 참여 인원을 고르고 4~5명 런치데이 팀을 만드는 TADA 내부용 마블 룰렛입니다."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/style.scss" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="control-panel">
+        <section class="brand-panel">
+          <h1 id="appTitle" class="app-glow-title">타다 런치데이 룰렛</h1>
+          <p id="appSubtitle" class="visually-hidden">
+            직원 한 명당 구슬 하나. 오늘 참여 인원을 고르고 4~5명 런치데이 팀을 만듭니다.
+          </p>
+          <p id="configMeta" class="visually-hidden">
+            환경설정을 불러오는 중입니다.
+          </p>
+        </section>
+
+        <section class="surface">
+          <div class="surface-title-row">
+            <div>
+              <div class="eyebrow">Selection</div>
+              <h2>참여자 선택</h2>
+            </div>
+            <span id="statusBadge" class="status-badge">로딩 중</span>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary-tile">
+              <span>선택 인원</span>
+              <strong id="selectedCount">0</strong>
+            </div>
+            <div class="summary-tile">
+              <span>전체 인원</span>
+              <strong id="totalEmployeeCount">0</strong>
+            </div>
+            <div class="summary-tile">
+              <span>생성 팀</span>
+              <strong id="plannedTeamCount">0</strong>
+            </div>
+            <div class="summary-tile">
+              <span>완주 인원</span>
+              <strong id="finisherCount">0</strong>
+            </div>
+          </div>
+
+          <label class="search-field" for="searchInput">
+            <span>이름 또는 팀 검색</span>
+            <input id="searchInput" type="search" placeholder="예: Product, 민수" />
+          </label>
+
+          <div class="button-row">
+            <button id="selectAllButton" class="ghost" type="button">전체 선택</button>
+            <button id="clearButton" class="ghost" type="button">선택 해제</button>
+            <button id="pasteEmployeesButton" class="ghost" type="button">명단 붙여넣기</button>
+          </div>
+
+          <div id="selectionSummary" class="selection-summary visually-hidden"></div>
+          <div id="teamSizePreview" class="team-size-preview visually-hidden"></div>
+        </section>
+
+        <section class="surface employee-surface">
+          <div class="surface-title-row compact">
+            <h2>직원 목록</h2>
+            <span id="visibleEmployeeCount" class="micro-copy">0명 표시</span>
+          </div>
+          <div id="employeeList" class="employee-list"></div>
+        </section>
+      </aside>
+
+      <main class="stage-panel">
+        <section class="surface stage-surface">
+          <div class="surface-title-row">
+            <div>
+              <div class="eyebrow">Live Stage</div>
+              <h2>런치데이 드롭</h2>
+            </div>
+            <div class="button-row compact">
+              <button id="refreshPreviewButton" class="ghost" type="button">프리뷰 동기화</button>
+              <button id="resetButton" class="ghost" type="button">리셋</button>
+              <button id="startButton" class="primary" type="button">룰렛 시작</button>
+            </div>
+          </div>
+
+          <p id="stageMeta" class="meta-copy">
+            참여자를 선택하면 출발 위치에 구슬 프리뷰가 반영됩니다.
+          </p>
+
+          <div class="stage-chip-row">
+            <div class="stage-chip">
+                  <span>배정 흐름</span>
+                  <strong id="currentTeamLabel">순차 배정</strong>
+            </div>
+            <div class="stage-chip">
+              <span>방금 도착</span>
+              <strong id="lastFinisher">-</strong>
+            </div>
+            <div class="stage-chip">
+              <span>진행 상태</span>
+              <strong id="stageStateLabel">준비 완료</strong>
+            </div>
+          </div>
+
+          <div id="countdown" class="countdown hidden"></div>
+          <div id="updateMarquee" class="update-marquee hidden"></div>
+        </section>
+
+        <section class="surface log-surface">
+          <div class="surface-title-row compact">
+            <h2>라이브 로그</h2>
+            <span class="micro-copy">완주 순서가 팀 보드에 즉시 반영됩니다.</span>
+          </div>
+          <ol id="eventLog" class="event-log"></ol>
+        </section>
+      </main>
+
+      <section class="result-panel">
+        <section class="surface result-surface">
+          <div class="surface-title-row">
+            <div>
+              <div class="eyebrow">Result Board</div>
+              <h2>런치데이 팀</h2>
+            </div>
+            <div class="result-actions">
+              <span id="slackChannelMeta" class="micro-copy hidden"></span>
+              <button id="publishSlackButton" class="ghost" type="button">슬랙 게시</button>
+            </div>
+          </div>
+          <div id="warningBox" class="warning-box hidden"></div>
+          <div id="teamBoard" class="team-board"></div>
+        </section>
+      </section>
+    </div>
+
+    <div id="pasteModal" class="modal hidden">
+      <div id="pasteModalBackdrop" class="modal-backdrop"></div>
+      <section class="modal-dialog surface">
+        <div class="surface-title-row">
+          <div>
+            <div class="eyebrow">Quick Paste</div>
+            <h2>직원 명단 붙여넣기</h2>
+          </div>
+          <button id="pasteModalCloseButton" class="ghost" type="button">닫기</button>
+        </div>
+        <p class="meta-copy">
+          시트에서 복사한 `이름`/`팀` 2열을 그대로 붙여넣거나, 한 줄에 `이름 | 팀` 형식으로 입력할 수 있습니다.
+        </p>
+        <textarea
+          id="pasteTextarea"
+          class="paste-textarea"
+          placeholder="예시&#10;가은	Product&#10;도윤	Product&#10;민서	Design"
+        ></textarea>
+        <div class="button-row">
+          <button id="pasteApplyButton" class="primary" type="button">명단 적용</button>
+        </div>
+      </section>
+    </div>
+
+    <div id="toastRoot" class="toast-root"></div>
+
+    <script type="module" src="./src/index.ts"></script>
+  </body>
+</html>

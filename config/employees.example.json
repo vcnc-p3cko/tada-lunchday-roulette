@@ -1,0 +1,20 @@
+{
+  "title": "타다 런치데이 룰렛",
+  "subtitle": "직원 한 명당 구슬 하나. 오늘 참여 인원을 골라 4~5명 런치데이 팀을 만듭니다.",
+  "organization": "타다",
+  "slackChannelLabel": "#lunchday",
+  "minTeamSize": 4,
+  "maxTeamSize": 5,
+  "employees": [
+    { "id": "EMP-001", "name": "가은", "team": "Product" },
+    { "id": "EMP-002", "name": "도윤", "team": "Product" },
+    { "id": "EMP-003", "name": "민서", "team": "Design" },
+    { "id": "EMP-004", "name": "서준", "team": "Driver Ops" },
+    { "id": "EMP-005", "name": "하윤", "team": "Marketing" },
+    { "id": "EMP-006", "name": "이안", "team": "Operations" },
+    { "id": "EMP-007", "name": "주원", "team": "Operations" },
+    { "id": "EMP-008", "name": "유진", "team": "People" },
+    { "id": "EMP-009", "name": "지우", "team": "People" },
+    { "id": "EMP-010", "name": "하린", "team": "Finance" }
+  ]
+}
