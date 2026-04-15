@@ -42,6 +42,7 @@ type ElementMap = {
   currentTeamLabel: HTMLElement;
   employeeList: HTMLDivElement;
   eventLog: HTMLOListElement;
+  finishOverlay: HTMLDivElement;
   finisherCount: HTMLElement;
   lastFinisher: HTMLElement;
   pasteApplyButton: HTMLButtonElement;
@@ -120,6 +121,7 @@ export class LunchdayApp {
       currentTeamLabel: this.query('#currentTeamLabel'),
       employeeList: this.query('#employeeList'),
       eventLog: this.query('#eventLog'),
+      finishOverlay: this.query('#finishOverlay'),
       finisherCount: this.query('#finisherCount'),
       lastFinisher: this.query('#lastFinisher'),
       pasteApplyButton: this.query('#pasteApplyButton'),
@@ -267,6 +269,8 @@ export class LunchdayApp {
       }
 
       this.isRunning = false;
+      this.elements.finishOverlay.classList.remove('hidden');
+      this.elements.updateMarquee.classList.add('hidden');
       this.setStatus('편성 완료', 'complete');
       this.elements.stageStateLabel.textContent = '편성 완료';
       this.updateActionState();
@@ -275,6 +279,11 @@ export class LunchdayApp {
       const completedCount = this.runState.finishedLabels.size;
       this.appendLog(`팀 편성이 완료되었습니다. 총 ${completedCount}명이 완주했습니다.`);
       this.showToast('런치데이 팀 편성이 완료되었습니다.');
+      window.setTimeout(() => {
+        if (!this.isRunning) {
+          this.roulette.clearMarbles();
+        }
+      }, 0);
     });
   }
 
@@ -589,6 +598,7 @@ export class LunchdayApp {
     this.lastLogEntries = [];
     this.renderEventLog();
     this.isRunning = true;
+    this.elements.finishOverlay.classList.add('hidden');
     this.updateActionState();
     this.renderEmployeeList();
 
@@ -857,6 +867,8 @@ export class LunchdayApp {
     this.runState = null;
     this.isRunning = false;
     this.lastLogEntries = [];
+    this.elements.finishOverlay.classList.add('hidden');
+    this.elements.updateMarquee.classList.add('hidden');
     this.renderEventLog();
   }
 
