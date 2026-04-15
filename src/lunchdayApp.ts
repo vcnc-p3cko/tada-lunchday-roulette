@@ -377,11 +377,9 @@ export class LunchdayApp {
     this.elements.totalEmployeeCount.textContent = `${this.config.employees.length}`;
     this.elements.configMeta.textContent = `${this.config.organization} · ${this.config.configSource} · 직원 ${this.config.employees.length}명`;
 
-    if (this.config.slackEnabled) {
+    if (this.config.slackChannelLabel) {
       this.elements.slackChannelMeta.classList.remove('hidden');
-      this.elements.slackChannelMeta.textContent = this.config.slackChannelLabel
-        ? `Slack ${this.config.slackChannelLabel}`
-        : 'Slack 게시 가능';
+      this.elements.slackChannelMeta.textContent = `${this.config.slackChannelLabel} 붙여넣기용`;
     } else {
       this.elements.slackChannelMeta.classList.add('hidden');
       this.elements.slackChannelMeta.textContent = '';
@@ -562,8 +560,7 @@ export class LunchdayApp {
     this.elements.teamCountPlus.disabled = disabled || this.teamCountSetting >= Math.max(1, selectionCount);
     this.elements.teamSizeMinus.disabled = disabled || this.teamSizeSetting <= 1;
     this.elements.teamSizePlus.disabled = disabled || this.teamSizeSetting >= Math.max(1, selectionCount);
-    this.elements.publishSlackButton.disabled =
-      this.isPublishingSlack || !this.config.slackEnabled || !this.canPublishSlack();
+    this.elements.publishSlackButton.disabled = this.isPublishingSlack || !this.canPublishSlack();
   }
 
   private async startRun() {
@@ -771,13 +768,8 @@ export class LunchdayApp {
   }
 
   private async publishResultsToSlack() {
-    if (!this.config.slackEnabled) {
-      this.showToast('Slack 게시 설정이 없습니다.');
-      return;
-    }
-
     if (!this.runState || !this.canPublishSlack()) {
-      this.showToast('팀 편성이 끝난 뒤에 Slack으로 게시할 수 있습니다.');
+      this.showToast('팀 편성이 끝난 뒤에 Slack용 결과를 복사할 수 있습니다.');
       return;
     }
 
@@ -785,41 +777,46 @@ export class LunchdayApp {
     this.updateActionState();
 
     try {
-      const response = await fetch('/api/publish-results', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          organization: this.config.organization,
-          teams: this.runState.teamBuckets.map((team) => ({
-            members: team.members.map((member) => ({
-              name: member.name,
-              team: member.team,
-            })),
-            teamLabel: team.teamLabel,
-          })),
-          title: `${this.config.title} 결과`,
-        }),
-      });
-
-      if (!response.ok) {
-        const payload = (await response.json().catch(() => ({ error: 'Slack 게시에 실패했습니다.' }))) as {
-          error?: string;
-        };
-        throw new Error(payload.error || 'Slack 게시에 실패했습니다.');
-      }
-
+      const markdown = this.buildSlackCopy();
+      await copyTextToClipboard(markdown);
       this.showToast(
         this.config.slackChannelLabel
-          ? `${this.config.slackChannelLabel} 채널에 결과를 게시했습니다.`
-          : 'Slack에 결과를 게시했습니다.'
+          ? `${this.config.slackChannelLabel}용 결과를 클립보드에 복사했습니다.`
+          : 'Slack 붙여넣기용 결과를 클립보드에 복사했습니다.'
       );
     } catch (error) {
-      console.warn('[LunchdayApp] Failed to publish Slack message:', error);
-      this.showToast(error instanceof Error ? error.message : 'Slack 게시에 실패했습니다.');
+      console.warn('[LunchdayApp] Failed to copy Slack message:', error);
+      this.showToast(error instanceof Error ? error.message : '클립보드 복사에 실패했습니다.');
     } finally {
       this.isPublishingSlack = false;
       this.updateActionState();
     }
+  }
+
+  private buildSlackCopy(): string {
+    if (!this.runState) {
+      return '';
+    }
+
+    const selectedCount = this.getSelectedEmployees().length;
+    const header = [`*${this.config.title} 결과*`, `총 ${selectedCount}명 · ${this.runState.teamBuckets.length}개 팀`];
+
+    const teamSections = this.runState.teamBuckets.map((team) => {
+      const lines = [`*${team.teamCode.replace('TEAM-', '팀')}* (${team.members.length}/${team.targetSize})`];
+
+      if (!team.members.length) {
+        lines.push('• 대기 중');
+        return lines.join('\n');
+      }
+
+      team.members.forEach((member) => {
+        lines.push(`• ${member.name} | ${member.team}`);
+      });
+
+      return lines.join('\n');
+    });
+
+    return [...header, '', ...teamSections].join('\n\n');
   }
 
   private appendLog(message: string) {
@@ -1054,4 +1051,27 @@ function splitEmployeeLine(line: string): string[] {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
+}
+
+async function copyTextToClipboard(text: string): Promise<void> {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', 'true');
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  textarea.style.pointerEvents = 'none';
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  const copied = document.execCommand('copy');
+  textarea.remove();
+
+  if (!copied) {
+    throw new Error('클립보드 복사에 실패했습니다.');
+  }
 }
