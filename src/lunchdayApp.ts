@@ -526,6 +526,7 @@ export class LunchdayApp {
         return `
           <article class="team-card ${activeClass}" style="--team-accent: ${team.accent}">
             <div class="team-card-head">
+              <span class="team-card-label">${escapeHtml(team.teamCode.replace('TEAM-', '팀'))}</span>
               <span class="team-card-count">${team.members.length} / ${team.targetSize}</span>
             </div>
             ${membersHtml}
