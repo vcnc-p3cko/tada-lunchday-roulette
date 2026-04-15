@@ -155,8 +155,10 @@ canvas {
 
 .selection-surface {
   flex: 0 0 auto;
-  padding-top: 12px;
-  padding-bottom: 12px;
+  display: grid;
+  gap: 8px;
+  padding: 2px 2px 6px;
+  pointer-events: auto;
 }
 
 .stage-surface {
@@ -271,11 +273,19 @@ h2 {
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-  margin-top: 10px;
+  gap: 8px;
 }
 
-.summary-tile,
+.summary-tile {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.48), rgba(255, 250, 245, 0.22)),
+    rgba(255, 255, 255, 0.2);
+  box-shadow: 0 16px 34px rgba(52, 34, 21, 0.12);
+  padding: 10px 12px;
+}
+
 .stage-chip {
   border-radius: var(--radius-lg);
   border: 1px solid rgba(255, 255, 255, 0.52);
@@ -283,18 +293,66 @@ h2 {
   padding: 8px 10px;
 }
 
-.summary-tile span,
+.summary-tile span {
+  display: block;
+  color: rgba(56, 43, 33, 0.72);
+  font-size: 0.66rem;
+}
+
 .stage-chip span {
   display: block;
   color: rgba(56, 43, 33, 0.72);
   font-size: 0.66rem;
 }
 
-.summary-tile strong,
+.summary-tile strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.02rem;
+}
+
 .stage-chip strong {
   display: block;
   margin-top: 4px;
   font-size: 1rem;
+}
+
+.summary-control-tile {
+  padding-bottom: 8px;
+}
+
+.summary-control {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 28px;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.summary-control strong {
+  margin-top: 0;
+  text-align: center;
+}
+
+.stepper-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  background: rgba(24, 27, 29, 0.72);
+  color: rgba(255, 248, 242, 0.92);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stepper-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: rgba(16, 18, 20, 0.78);
 }
 
 .search-field {
@@ -311,7 +369,7 @@ h2 {
 
 .employee-toolbar {
   display: grid;
-  gap: 8px;
+  gap: 10px;
   padding-bottom: 8px;
 }
 
@@ -473,7 +531,7 @@ button.ghost {
 .employee-table-head,
 .employee-row {
   display: grid;
-  grid-template-columns: 24px 88px minmax(0, 1fr);
+  grid-template-columns: 26px minmax(0, 86px) minmax(0, 1fr);
   gap: 10px;
   align-items: center;
 }
@@ -482,7 +540,7 @@ button.ghost {
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: 0 6px 8px;
+  padding: 0 8px 8px;
   background: linear-gradient(180deg, rgba(170, 167, 164, 0.96), rgba(170, 167, 164, 0.82));
   color: rgba(60, 50, 42, 0.68);
   font-size: 0.68rem;
@@ -491,10 +549,14 @@ button.ghost {
   text-transform: uppercase;
 }
 
+.employee-table-head span:first-child {
+  text-align: center;
+}
+
 .employee-row {
-  min-height: 46px;
-  padding: 7px 8px;
-  border-radius: 10px;
+  min-height: 42px;
+  padding: 6px 8px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.22);
   background: rgba(255, 255, 255, 0.14);
 }
@@ -518,13 +580,18 @@ button.ghost {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 62px;
-  border-radius: 8px;
-  background: rgba(15, 118, 110, 0.18);
-  color: var(--accent-strong);
-  font-size: 0.64rem;
+  min-width: 0;
+  max-width: 100%;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--team-tag-color) 16%, rgba(255, 255, 255, 0.82));
+  color: color-mix(in srgb, var(--team-tag-color) 84%, black 16%);
+  font-size: 0.58rem;
   font-weight: 700;
-  padding: 5px 9px;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 4px 7px;
 }
 
 .stage-chip-row {

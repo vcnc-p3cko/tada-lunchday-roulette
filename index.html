@@ -32,7 +32,7 @@
           </p>
         </section>
 
-        <section class="surface selection-surface">
+        <section class="selection-surface">
           <div class="surface-title-row">
             <div>
               <div class="eyebrow">Selection</div>
@@ -43,22 +43,31 @@
 
           <div class="summary-grid">
             <div class="summary-tile">
-              <span>선택 인원</span>
-              <strong id="selectedCount">0</strong>
-            </div>
-            <div class="summary-tile">
               <span>전체 인원</span>
               <strong id="totalEmployeeCount">0</strong>
             </div>
             <div class="summary-tile">
-              <span>생성 팀</span>
-              <strong id="plannedTeamCount">0</strong>
+              <span>선택 인원</span>
+              <strong id="selectedCount">0</strong>
             </div>
-            <div class="summary-tile">
-              <span>완주 인원</span>
-              <strong id="finisherCount">0</strong>
+            <div class="summary-tile summary-control-tile">
+              <span>팀 갯수</span>
+              <div class="summary-control">
+                <button id="teamCountMinus" class="stepper-button" type="button" aria-label="팀 갯수 줄이기">-</button>
+                <strong id="plannedTeamCount">0</strong>
+                <button id="teamCountPlus" class="stepper-button" type="button" aria-label="팀 갯수 늘리기">+</button>
+              </div>
+            </div>
+            <div class="summary-tile summary-control-tile">
+              <span>팀당 인원</span>
+              <div class="summary-control">
+                <button id="teamSizeMinus" class="stepper-button" type="button" aria-label="팀당 인원 줄이기">-</button>
+                <strong id="teamSizeCount">0</strong>
+                <button id="teamSizePlus" class="stepper-button" type="button" aria-label="팀당 인원 늘리기">+</button>
+              </div>
             </div>
           </div>
+          <span id="finisherCount" class="visually-hidden">0</span>
           <div id="selectionSummary" class="selection-summary visually-hidden"></div>
           <div id="teamSizePreview" class="team-size-preview visually-hidden"></div>
         </section>
@@ -68,7 +77,6 @@
             <div class="employee-header-row">
               <div class="surface-title-row compact">
                 <h2>직원 목록</h2>
-                <span id="visibleEmployeeCount" class="micro-copy">0명 표시</span>
               </div>
               <button
                 id="pasteEmployeesButton"

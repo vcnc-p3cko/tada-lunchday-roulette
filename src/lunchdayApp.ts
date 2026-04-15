@@ -2,7 +2,13 @@ import type { AppConfig, EmployeeConfig, TeamBucket, TeamMember } from './lunchd
 import options from './options';
 import type { Roulette } from './roulette';
 import { sampleConfig } from './sampleConfig';
-import { buildTeamBuckets, computeTeamSizes, findTeamBucketByRank, summarizeSelectedTeams } from './teamPlanner';
+import {
+  buildTeamBuckets,
+  computeTeamSizes,
+  computeTeamSizesFromSettings,
+  findTeamBucketByRank,
+  summarizeSelectedTeams,
+} from './teamPlanner';
 
 const STORAGE_KEY = 'tada-lunchday-selected-employees';
 const CUSTOM_EMPLOYEES_KEY = 'tada-lunchday-custom-employees';
@@ -58,10 +64,14 @@ type ElementMap = {
   statusBadge: HTMLSpanElement;
   slackChannelMeta: HTMLSpanElement;
   teamBoard: HTMLDivElement;
+  teamCountMinus: HTMLButtonElement;
+  teamCountPlus: HTMLButtonElement;
+  teamSizeCount: HTMLElement;
+  teamSizeMinus: HTMLButtonElement;
+  teamSizePlus: HTMLButtonElement;
   teamSizePreview: HTMLDivElement;
   toastRoot: HTMLDivElement;
   totalEmployeeCount: HTMLElement;
-  visibleEmployeeCount: HTMLSpanElement;
   warningBox: HTMLDivElement;
   updateMarquee: HTMLDivElement;
 };
@@ -75,6 +85,9 @@ export class LunchdayApp {
   private marqueeTimer: number | null = null;
   private lastLogEntries: string[] = [];
   private isPublishingSlack = false;
+  private teamCountSetting = 0;
+  private teamSizeSetting = 0;
+  private teamSettingMode: 'count' | 'size' = 'count';
 
   constructor(private roulette: Roulette) {}
 
@@ -129,10 +142,14 @@ export class LunchdayApp {
       statusBadge: this.query('#statusBadge'),
       slackChannelMeta: this.query('#slackChannelMeta'),
       teamBoard: this.query('#teamBoard'),
+      teamCountMinus: this.query('#teamCountMinus'),
+      teamCountPlus: this.query('#teamCountPlus'),
+      teamSizeCount: this.query('#teamSizeCount'),
+      teamSizeMinus: this.query('#teamSizeMinus'),
+      teamSizePlus: this.query('#teamSizePlus'),
       teamSizePreview: this.query('#teamSizePreview'),
       toastRoot: this.query('#toastRoot'),
       totalEmployeeCount: this.query('#totalEmployeeCount'),
-      visibleEmployeeCount: this.query('#visibleEmployeeCount'),
       warningBox: this.query('#warningBox'),
       updateMarquee: this.query('#updateMarquee'),
     };
@@ -155,6 +172,22 @@ export class LunchdayApp {
       this.selectedIds.clear();
       this.persistSelection();
       this.syncPreview();
+    });
+
+    this.elements.teamCountMinus.addEventListener('click', () => {
+      this.adjustTeamCount(-1);
+    });
+
+    this.elements.teamCountPlus.addEventListener('click', () => {
+      this.adjustTeamCount(1);
+    });
+
+    this.elements.teamSizeMinus.addEventListener('click', () => {
+      this.adjustTeamSize(-1);
+    });
+
+    this.elements.teamSizePlus.addEventListener('click', () => {
+      this.adjustTeamSize(1);
     });
 
     this.elements.pasteEmployeesButton.addEventListener('click', () => {
@@ -357,7 +390,7 @@ export class LunchdayApp {
 
   private syncPreview(showToast = false) {
     const selectedEmployees = this.getSelectedEmployees();
-    const teamPlan = computeTeamSizes(selectedEmployees.length, this.config.minTeamSize, this.config.maxTeamSize);
+    const teamPlan = this.createTeamPlan(selectedEmployees.length);
 
     this.resetRunState();
     this.renderSelectionSummary(selectedEmployees);
@@ -366,8 +399,9 @@ export class LunchdayApp {
     this.renderTeamBoard(buildTeamBuckets(teamPlan.sizes));
     this.renderWarnings(teamPlan.warnings);
 
-    this.elements.selectedCount.textContent = `${selectedEmployees.length}`;
     this.elements.plannedTeamCount.textContent = `${teamPlan.sizes.length}`;
+    this.elements.selectedCount.textContent = `${selectedEmployees.length}`;
+    this.elements.teamSizeCount.textContent = `${this.teamSizeSetting}`;
     this.elements.finisherCount.textContent = '0';
     this.elements.lastFinisher.textContent = '-';
     this.elements.currentTeamLabel.textContent = teamPlan.sizes.length ? '순차 배정' : '-';
@@ -397,7 +431,7 @@ export class LunchdayApp {
 
   private renderEmployeeList() {
     const visibleEmployees = this.getVisibleEmployees();
-    this.elements.visibleEmployeeCount.textContent = `${visibleEmployees.length}명 표시`;
+    const teamColors = buildEmployeeTeamColorMap(this.config.employees);
 
     if (!visibleEmployees.length) {
       this.elements.employeeList.innerHTML = '<div class="empty-state">검색 조건에 맞는 직원이 없습니다.</div>';
@@ -407,7 +441,7 @@ export class LunchdayApp {
     this.elements.employeeList.innerHTML = `
       <div class="employee-table">
         <div class="employee-table-head">
-          <span></span>
+          <span>선택</span>
           <span>팀</span>
           <span>이름</span>
         </div>
@@ -416,11 +450,12 @@ export class LunchdayApp {
             const checked = this.selectedIds.has(employee.id) ? 'checked' : '';
             const disabled = employee.enabled && !this.isRunning ? '' : 'disabled';
             const disabledClass = employee.enabled ? '' : 'is-disabled';
+            const teamColor = teamColors.get(employee.team) ?? '#7ff0d8';
 
             return `
               <label class="employee-row ${disabledClass}">
                 <input type="checkbox" data-employee-id="${escapeHtml(employee.id)}" ${checked} ${disabled} />
-                <span class="team-tag">${escapeHtml(employee.team)}</span>
+                <span class="team-tag" style="--team-tag-color: ${teamColor}">${escapeHtml(employee.team)}</span>
                 <div class="employee-name">${escapeHtml(employee.name)}</div>
               </label>
             `;
@@ -520,6 +555,10 @@ export class LunchdayApp {
     this.elements.resetButton.disabled = this.isRunning;
     this.elements.selectAllButton.disabled = this.isRunning;
     this.elements.searchInput.disabled = this.isRunning;
+    this.elements.teamCountMinus.disabled = disabled || this.teamCountSetting <= 1;
+    this.elements.teamCountPlus.disabled = disabled || this.teamCountSetting >= Math.max(1, selectionCount);
+    this.elements.teamSizeMinus.disabled = disabled || this.teamSizeSetting <= 1;
+    this.elements.teamSizePlus.disabled = disabled || this.teamSizeSetting >= Math.max(1, selectionCount);
     this.elements.publishSlackButton.disabled =
       this.isPublishingSlack || !this.config.slackEnabled || !this.canPublishSlack();
   }
@@ -535,7 +574,7 @@ export class LunchdayApp {
       return;
     }
 
-    const teamPlan = computeTeamSizes(selectedEmployees.length, this.config.minTeamSize, this.config.maxTeamSize);
+    const teamPlan = this.createTeamPlan(selectedEmployees.length);
     const teamBuckets = buildTeamBuckets(teamPlan.sizes);
 
     this.runState = {
@@ -623,6 +662,68 @@ export class LunchdayApp {
     employees.forEach((employee) => {
       this.roulette.setMarbleColor(employee.marbleLabel, teamColors.get(employee.team) ?? '#7ff0d8');
     });
+  }
+
+  private createTeamPlan(participantCount: number) {
+    this.syncTeamSettings(participantCount);
+    return computeTeamSizesFromSettings(participantCount, this.teamCountSetting, this.teamSizeSetting);
+  }
+
+  private syncTeamSettings(participantCount: number) {
+    if (participantCount <= 0) {
+      this.teamCountSetting = 0;
+      this.teamSizeSetting = 0;
+      return;
+    }
+
+    if (!this.teamCountSetting || !this.teamSizeSetting) {
+      const defaults = computeTeamSizes(participantCount, this.config.minTeamSize, this.config.maxTeamSize);
+      this.teamCountSetting = defaults.sizes.length || 1;
+      this.teamSizeSetting = Math.max(...defaults.sizes, 1);
+      this.teamSettingMode = 'count';
+      return;
+    }
+
+    if (this.teamSettingMode === 'count') {
+      this.teamCountSetting = clamp(this.teamCountSetting, 1, participantCount);
+      this.teamSizeSetting = Math.max(1, Math.ceil(participantCount / this.teamCountSetting));
+      return;
+    }
+
+    this.teamSizeSetting = clamp(this.teamSizeSetting, 1, participantCount);
+    this.teamCountSetting = Math.max(1, Math.ceil(participantCount / this.teamSizeSetting));
+  }
+
+  private adjustTeamCount(delta: number) {
+    if (this.isRunning) {
+      return;
+    }
+
+    const participantCount = this.getSelectedEmployees().length;
+    if (!participantCount) {
+      return;
+    }
+
+    this.teamSettingMode = 'count';
+    this.teamCountSetting = clamp((this.teamCountSetting || 1) + delta, 1, participantCount);
+    this.teamSizeSetting = Math.max(1, Math.ceil(participantCount / this.teamCountSetting));
+    this.syncPreview();
+  }
+
+  private adjustTeamSize(delta: number) {
+    if (this.isRunning) {
+      return;
+    }
+
+    const participantCount = this.getSelectedEmployees().length;
+    if (!participantCount) {
+      return;
+    }
+
+    this.teamSettingMode = 'size';
+    this.teamSizeSetting = clamp((this.teamSizeSetting || 1) + delta, 1, participantCount);
+    this.teamCountSetting = Math.max(1, Math.ceil(participantCount / this.teamSizeSetting));
+    this.syncPreview();
   }
 
   private togglePasteModal(isOpen: boolean) {
@@ -946,4 +1047,8 @@ function splitEmployeeLine(line: string): string[] {
   }
 
   return [trimmed];
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
 }
