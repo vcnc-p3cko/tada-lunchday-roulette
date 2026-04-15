@@ -20,7 +20,7 @@
   "scripts": {
     "lint": "biome check --write src/ server.js",
     "dev": "parcel index.html --port 1235",
-    "build": "parcel build index.html --public-url /",
+    "build": "parcel build index.html --public-url ./",
     "start": "node server.js"
   },
   "dependencies": {
