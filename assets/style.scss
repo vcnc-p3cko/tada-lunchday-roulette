@@ -150,12 +150,13 @@ canvas {
   min-height: 0;
   overflow: hidden;
   max-height: none;
+  padding-top: 12px;
 }
 
 .selection-surface {
   flex: 0 0 auto;
-  padding-top: 14px;
-  padding-bottom: 14px;
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 
 .stage-surface {
@@ -271,7 +272,7 @@ h2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 .summary-tile,
@@ -306,6 +307,39 @@ h2 {
 
 .search-field input {
   width: 100%;
+}
+
+.employee-toolbar {
+  display: grid;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+.employee-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.employee-header-row .surface-title-row {
+  flex: 1;
+}
+
+.employee-search-field {
+  margin-top: 0;
+}
+
+.employee-search-field input {
+  padding: 11px 12px;
+}
+
+.employee-action-row {
+  margin-top: 0;
+}
+
+.employee-action-row button {
+  flex: 1 1 0;
 }
 
 input[type='search'],
@@ -372,6 +406,22 @@ button.ghost {
   color: rgba(255, 248, 242, 0.92);
 }
 
+.icon-button {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 10px;
+  flex: 0 0 34px;
+}
+
+.icon-button svg {
+  width: 16px;
+  height: 16px;
+}
+
 .selection-summary {
   margin-top: 12px;
   min-height: 32px;
@@ -410,7 +460,7 @@ button.ghost {
 .employee-list {
   flex: 1 1 auto;
   overflow: auto;
-  margin-top: 10px;
+  margin-top: 0;
   padding-right: 4px;
   max-height: none;
 }

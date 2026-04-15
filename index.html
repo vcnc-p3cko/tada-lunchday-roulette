@@ -59,26 +59,39 @@
               <strong id="finisherCount">0</strong>
             </div>
           </div>
-
-          <label class="search-field" for="searchInput">
-            <span>이름 또는 팀 검색</span>
-            <input id="searchInput" type="search" placeholder="예: Product, 민수" />
-          </label>
-
-          <div class="button-row">
-            <button id="selectAllButton" class="ghost" type="button">전체 선택</button>
-            <button id="clearButton" class="ghost" type="button">선택 해제</button>
-            <button id="pasteEmployeesButton" class="ghost" type="button">명단 붙여넣기</button>
-          </div>
-
           <div id="selectionSummary" class="selection-summary visually-hidden"></div>
           <div id="teamSizePreview" class="team-size-preview visually-hidden"></div>
         </section>
 
         <section class="surface employee-surface">
-          <div class="surface-title-row compact">
-            <h2>직원 목록</h2>
-            <span id="visibleEmployeeCount" class="micro-copy">0명 표시</span>
+          <div class="employee-toolbar">
+            <div class="employee-header-row">
+              <div class="surface-title-row compact">
+                <h2>직원 목록</h2>
+                <span id="visibleEmployeeCount" class="micro-copy">0명 표시</span>
+              </div>
+              <button
+                id="pasteEmployeesButton"
+                class="ghost icon-button"
+                type="button"
+                aria-label="명단 붙여넣기"
+                title="명단 붙여넣기"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M9 3.75A2.25 2.25 0 0 1 11.25 1.5h1.5A2.25 2.25 0 0 1 15 3.75h1.5A2.25 2.25 0 0 1 18.75 6v12A2.25 2.25 0 0 1 16.5 20.25h-9A2.25 2.25 0 0 1 5.25 18V6A2.25 2.25 0 0 1 7.5 3.75H9Zm0 1.5H7.5A.75.75 0 0 0 6.75 6v12c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75V6a.75.75 0 0 0-.75-.75H15v.75A2.25 2.25 0 0 1 12.75 8.25h-1.5A2.25 2.25 0 0 1 9 6V5.25Zm1.5-1.5V6c0 .414.336.75.75.75h1.5A.75.75 0 0 0 13.5 6V3.75a.75.75 0 0 0-.75-.75h-1.5a.75.75 0 0 0-.75.75Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </div>
+            <label class="search-field employee-search-field" for="searchInput">
+              <input id="searchInput" type="search" placeholder="이름 또는 팀 검색" />
+            </label>
+            <div class="button-row employee-action-row">
+              <button id="selectAllButton" class="ghost" type="button">전체 선택</button>
+              <button id="clearButton" class="ghost" type="button">전체 해제</button>
+            </div>
           </div>
           <div id="employeeList" class="employee-list"></div>
         </section>
