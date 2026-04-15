@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang=ko><script type=importmap>{"imports":{"2rDQN":"./Box2D.simd.dd31b167.wasm","8BShk":"./Box2D.simd.5f0a4d5f.js","9DwmV":"./kkwak.673a610d.png","9YLvj":"./waldokun.7e88dd59.png","cdgIR":"./chamru.d6926a56.png","fkRhi":"./junyoop.d27f0cbf.png","h7cmx":"./Box2D.b9b16b27.wasm","ilUZb":"./Box2D.6e6b3e90.js","juMvj":"./ff.7fdc9e82.svg","lfSvD":"./kubin.f3647b70.png"}}</script><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><title>타다 런치데이 룰렛</title><meta name=description content="직원 한 명당 구슬 하나. 참여 인원을 고르고 4~5명 런치데이 팀을 만드는 TADA 내부용 마블 룰렛입니다."><link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel=stylesheet><link rel=stylesheet href=tada-lunchday-roulette.9f9a1b93.css><body>
+<!DOCTYPE html><html lang=ko><script type=importmap>{"imports":{"2rDQN":"./Box2D.simd.dd31b167.wasm","8BShk":"./Box2D.simd.5f0a4d5f.js","9DwmV":"./kkwak.673a610d.png","9YLvj":"./waldokun.7e88dd59.png","cdgIR":"./chamru.d6926a56.png","fkRhi":"./junyoop.d27f0cbf.png","h7cmx":"./Box2D.b9b16b27.wasm","ilUZb":"./Box2D.6e6b3e90.js","juMvj":"./ff.7fdc9e82.svg","lfSvD":"./kubin.f3647b70.png"}}</script><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><title>타다 런치데이 룰렛</title><meta name=description content="직원 한 명당 구슬 하나. 참여 인원을 고르고 4~5명 런치데이 팀을 만드는 TADA 내부용 마블 룰렛입니다."><link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel=stylesheet><link rel=stylesheet href=tada-lunchday-roulette.41e6ed2a.css><body>
     <div class=app-shell>
       <aside class=control-panel>
         <section class=brand-panel>
@@ -12,13 +12,7 @@
         </section>
 
         <section class=selection-surface>
-          <div class=surface-title-row>
-            <div>
-              <div class=eyebrow>Selection</div>
-              <h2>참여자 선택</h2>
-            </div>
-            <span id=statusBadge class=status-badge>로딩 중</span>
-          </div>
+          <span id=statusBadge class="status-badge visually-hidden">로딩 중</span>
 
           <div class=summary-grid>
             <div class=summary-tile>
@@ -102,7 +96,7 @@
             </div>
             <div class=stage-chip>
               <span>진행 상태</span>
-              <strong id=stageStateLabel>준비 완료</strong>
+              <strong id=stageStateLabel>대기</strong>
             </div>
           </div>
 
@@ -110,13 +104,6 @@
           <div id=updateMarquee class="hidden update-marquee"></div>
         </section>
 
-        <section class="log-surface surface">
-          <div class="compact surface-title-row">
-            <h2>라이브 로그</h2>
-            <span class=micro-copy>완주 순서가 팀 보드에 즉시 반영됩니다.</span>
-          </div>
-          <ol id=eventLog class=event-log></ol>
-        </section>
       </main>
 
       <section class=result-panel>
@@ -133,6 +120,13 @@
           </div>
           <div id=warningBox class="hidden warning-box"></div>
           <div id=teamBoard class=team-board></div>
+          <section class=result-log-surface>
+            <div class="compact surface-title-row">
+              <h2>라이브 로그</h2>
+              <span class=micro-copy>완주 순서가 팀 보드에 즉시 반영됩니다.</span>
+            </div>
+            <ol id=eventLog class=event-log></ol>
+          </section>
         </section>
       </section>
     </div>
@@ -167,6 +161,6 @@
 
     <div id=toastRoot class=toast-root></div>
 
-    <script type=module src=tada-lunchday-roulette.5acef4d9.js></script>
+    <script type=module src=tada-lunchday-roulette.1fda7a6f.js></script>
   
 
