@@ -95,7 +95,7 @@ canvas {
   height: calc(100vh - (var(--panel-gap) * 2));
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 10px;
 }
 
@@ -369,19 +369,21 @@ h2 {
 
 .employee-toolbar {
   display: grid;
-  gap: 10px;
-  padding-bottom: 8px;
+  gap: 12px;
+  padding-bottom: 10px;
 }
 
 .employee-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 14px;
+  padding: 2px 0 1px;
 }
 
 .employee-header-row .surface-title-row {
   flex: 1;
+  align-items: center;
 }
 
 .employee-search-field {
@@ -531,8 +533,8 @@ button.ghost {
 .employee-table-head,
 .employee-row {
   display: grid;
-  grid-template-columns: 26px minmax(0, 86px) minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: 26px minmax(0, 96px) minmax(0, 1fr);
+  gap: 12px;
   align-items: center;
 }
 
@@ -540,7 +542,7 @@ button.ghost {
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: 0 8px 8px;
+  padding: 2px 10px 10px;
   background: linear-gradient(180deg, rgba(170, 167, 164, 0.96), rgba(170, 167, 164, 0.82));
   color: rgba(60, 50, 42, 0.68);
   font-size: 0.68rem;
@@ -685,12 +687,42 @@ button.ghost {
 .team-board {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  flex: 1;
+  flex: 1 1 auto;
   gap: 6px;
   max-height: none;
   align-content: start;
   align-items: start;
   grid-auto-rows: min-content;
+}
+
+.result-log-surface {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.result-log-surface .surface-title-row {
+  align-items: center;
+}
+
+.result-log-surface h2 {
+  font-size: 0.84rem;
+}
+
+.result-log-surface .event-log {
+  margin-top: 0;
+  max-height: 136px;
+}
+
+.result-log-surface .event-log li {
+  border-radius: 8px;
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.18);
+  color: rgba(40, 31, 23, 0.88);
+  font-size: 0.74rem;
+  padding: 8px 10px;
 }
 
 .team-card {

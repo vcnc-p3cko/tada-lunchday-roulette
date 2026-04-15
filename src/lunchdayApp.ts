@@ -405,14 +405,14 @@ export class LunchdayApp {
     this.elements.finisherCount.textContent = '0';
     this.elements.lastFinisher.textContent = '-';
     this.elements.currentTeamLabel.textContent = teamPlan.sizes.length ? '순차 배정' : '-';
-    this.elements.stageStateLabel.textContent = '준비 완료';
+    this.elements.stageStateLabel.textContent = '대기';
 
     this.roulette.setMarbles(selectedEmployees.map((employee) => employee.marbleLabel));
     this.applyMarbleColors(selectedEmployees);
 
     if (selectedEmployees.length) {
       this.elements.stageMeta.textContent = `${selectedEmployees.length}명이 출발 대기 중입니다. 프리뷰 상태에서 바로 시작할 수 있습니다.`;
-      this.setStatus('준비 완료', 'ready');
+      this.setStatus('대기', 'ready');
     } else {
       this.elements.stageMeta.textContent = '참여자를 선택하면 출발 위치에 구슬 프리뷰가 반영됩니다.';
       this.setStatus('선택 대기', 'loading');
@@ -430,7 +430,9 @@ export class LunchdayApp {
   }
 
   private renderEmployeeList() {
-    const visibleEmployees = this.getVisibleEmployees();
+    const visibleEmployees = [...this.getVisibleEmployees()].sort(
+      (left, right) => left.team.localeCompare(right.team, 'ko') || left.name.localeCompare(right.name, 'ko')
+    );
     const teamColors = buildEmployeeTeamColorMap(this.config.employees);
 
     if (!visibleEmployees.length) {
