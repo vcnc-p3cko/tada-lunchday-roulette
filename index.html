@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang=ko><script type=importmap>{"imports":{"2rDQN":"./Box2D.simd.dd31b167.wasm","8BShk":"./Box2D.simd.5f0a4d5f.js","9DwmV":"./kkwak.673a610d.png","9YLvj":"./waldokun.7e88dd59.png","cdgIR":"./chamru.d6926a56.png","fkRhi":"./junyoop.d27f0cbf.png","h7cmx":"./Box2D.b9b16b27.wasm","ilUZb":"./Box2D.6e6b3e90.js","juMvj":"./ff.7fdc9e82.svg","lfSvD":"./kubin.f3647b70.png"}}</script><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><title>타다 런치데이 룰렛</title><meta name=description content="직원 한 명당 구슬 하나. 참여 인원을 고르고 4~5명 런치데이 팀을 만드는 TADA 내부용 마블 룰렛입니다."><link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel=stylesheet><link rel=stylesheet href=tada-lunchday-roulette.1d5a5421.css><body>
+<!DOCTYPE html><html lang=ko><script type=importmap>{"imports":{"2rDQN":"./Box2D.simd.dd31b167.wasm","8BShk":"./Box2D.simd.5f0a4d5f.js","9DwmV":"./kkwak.673a610d.png","9YLvj":"./waldokun.7e88dd59.png","cdgIR":"./chamru.d6926a56.png","fkRhi":"./junyoop.d27f0cbf.png","h7cmx":"./Box2D.b9b16b27.wasm","ilUZb":"./Box2D.6e6b3e90.js","juMvj":"./ff.7fdc9e82.svg","lfSvD":"./kubin.f3647b70.png"}}</script><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><title>타다 런치데이 룰렛</title><meta name=description content="직원 한 명당 구슬 하나. 참여 인원을 고르고 4~5명 런치데이 팀을 만드는 TADA 내부용 마블 룰렛입니다."><link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel=stylesheet><link rel=stylesheet href=tada-lunchday-roulette.9f9a1b93.css><body>
     <div class=app-shell>
       <aside class=control-panel>
         <section class=brand-panel>
@@ -11,7 +11,7 @@
           </p>
         </section>
 
-        <section class="selection-surface surface">
+        <section class=selection-surface>
           <div class=surface-title-row>
             <div>
               <div class=eyebrow>Selection</div>
@@ -22,22 +22,31 @@
 
           <div class=summary-grid>
             <div class=summary-tile>
-              <span>선택 인원</span>
-              <strong id=selectedCount>0</strong>
-            </div>
-            <div class=summary-tile>
               <span>전체 인원</span>
               <strong id=totalEmployeeCount>0</strong>
             </div>
             <div class=summary-tile>
-              <span>생성 팀</span>
-              <strong id=plannedTeamCount>0</strong>
+              <span>선택 인원</span>
+              <strong id=selectedCount>0</strong>
             </div>
-            <div class=summary-tile>
-              <span>완주 인원</span>
-              <strong id=finisherCount>0</strong>
+            <div class="summary-control-tile summary-tile">
+              <span>팀 갯수</span>
+              <div class=summary-control>
+                <button id=teamCountMinus class=stepper-button type=button aria-label="팀 갯수 줄이기">-</button>
+                <strong id=plannedTeamCount>0</strong>
+                <button id=teamCountPlus class=stepper-button type=button aria-label="팀 갯수 늘리기">+</button>
+              </div>
+            </div>
+            <div class="summary-control-tile summary-tile">
+              <span>팀당 인원</span>
+              <div class=summary-control>
+                <button id=teamSizeMinus class=stepper-button type=button aria-label="팀당 인원 줄이기">-</button>
+                <strong id=teamSizeCount>0</strong>
+                <button id=teamSizePlus class=stepper-button type=button aria-label="팀당 인원 늘리기">+</button>
+              </div>
             </div>
           </div>
+          <span id=finisherCount class=visually-hidden>0</span>
           <div id=selectionSummary class="selection-summary visually-hidden"></div>
           <div id=teamSizePreview class="team-size-preview visually-hidden"></div>
         </section>
@@ -47,7 +56,6 @@
             <div class=employee-header-row>
               <div class="compact surface-title-row">
                 <h2>직원 목록</h2>
-                <span id=visibleEmployeeCount class=micro-copy>0명 표시</span>
               </div>
               <button id=pasteEmployeesButton class="ghost icon-button" type=button aria-label="명단 붙여넣기" title="명단 붙여넣기">
                 <svg aria-hidden=true viewBox="0 0 24 24"><path fill=currentColor d="M9 3.75a2.25 2.25 0 0 1 2.25-2.25h1.5A2.25 2.25 0 0 1 15 3.75h1.5A2.25 2.25 0 0 1 18.75 6v12a2.25 2.25 0 0 1-2.25 2.25h-9A2.25 2.25 0 0 1 5.25 18V6A2.25 2.25 0 0 1 7.5 3.75Zm0 1.5H7.5a.75.75 0 0 0-.75.75v12c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75V6a.75.75 0 0 0-.75-.75H15V6a2.25 2.25 0 0 1-2.25 2.25h-1.5A2.25 2.25 0 0 1 9 6Zm1.5-1.5V6c0 .414.336.75.75.75h1.5A.75.75 0 0 0 13.5 6V3.75a.75.75 0 0 0-.75-.75h-1.5a.75.75 0 0 0-.75.75"/></svg>
@@ -159,6 +167,6 @@
 
     <div id=toastRoot class=toast-root></div>
 
-    <script type=module src=tada-lunchday-roulette.169a451b.js></script>
+    <script type=module src=tada-lunchday-roulette.5acef4d9.js></script>
   
 
