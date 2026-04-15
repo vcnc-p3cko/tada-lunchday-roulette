@@ -179,9 +179,10 @@ export class Roulette extends EventTarget {
             this._recorder.stop();
           }, 1000);
         }
-        setTimeout(() => {
-          this.physics.removeMarble(marble.id);
-        }, 500);
+
+        // Remove finished marbles from the physics world immediately so they no longer
+        // collide inside the narrow goal funnel and create end-of-race bottlenecks.
+        this.physics.removeMarble(marble.id);
       }
     }
 
@@ -196,7 +197,11 @@ export class Roulette extends EventTarget {
     if (!this._stage) return 1;
     if (this._marbles.length > 0 && this._goalDist < zoomThreshold) {
       if (this._marbles[0].y > this._stage.zoomY - zoomThreshold * 1.2 && this._marbles[1]) {
-        return Math.max(0.2, this._goalDist / zoomThreshold);
+        const normalizedGoalDist = Math.max(0, Math.min(1, this._goalDist / zoomThreshold));
+
+        // Keep a bit of cinematic slowdown near the finish, but avoid the previous
+        // near-freeze that made the last bottleneck feel like frame lag.
+        return Math.max(0.55, 0.55 + normalizedGoalDist * 0.45);
       }
     }
     return 1;
