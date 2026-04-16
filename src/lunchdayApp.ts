@@ -584,7 +584,6 @@ export class LunchdayApp {
     this.elements.teamCountTile.hidden = !isLunchdayMode;
     this.elements.teamCountTile.setAttribute('aria-hidden', String(!isLunchdayMode));
     this.elements.teamSizeTile.classList.toggle('is-wide-in-rank', !isLunchdayMode);
-    this.elements.teamSizeTile.classList.toggle('is-inline-control', isLunchdayMode);
     this.elements.stageTitle.textContent = isLunchdayMode ? '런치데이' : '뽑기';
     this.elements.resultTitle.textContent = isLunchdayMode ? '런치데이 팀' : '뽑기';
     this.elements.resultEyebrow.textContent = isLunchdayMode ? 'Result Board' : 'Rank Pick';

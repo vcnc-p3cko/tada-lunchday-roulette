@@ -374,25 +374,6 @@ h2 {
   padding-bottom: 8px;
 }
 
-.summary-control-tile.is-inline-control {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.summary-control-tile.is-inline-control > span {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  clip-path: inset(50%);
-  overflow: hidden;
-}
-
-.summary-control-tile.is-inline-control .summary-control {
-  width: 100%;
-  margin-top: 0;
-}
-
 .summary-control {
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr) 28px;
