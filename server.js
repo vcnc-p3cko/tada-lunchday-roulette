@@ -122,7 +122,7 @@ function normalizeConfig(rawConfig, configSource) {
       slackEnabled: Boolean(slackWebhookUrl),
       subtitle: normalizeString(
         rawConfig.subtitle,
-        '직원 한 명당 구슬 하나. 런치데이 팀 편성과 꼴지뽑기를 한 화면에서 진행합니다.'
+        '직원 한 명당 구슬 하나. 런치데이 팀 편성과 몇번째 뽑기를 한 화면에서 진행합니다.'
       ),
       title: normalizeString(rawConfig.title, '타다 룰렛'),
     },
