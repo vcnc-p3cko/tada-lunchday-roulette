@@ -128,17 +128,11 @@ export class Roulette extends EventTarget {
       this._uiObjects.forEach((obj) => obj.update(this._updateInterval));
     }
 
-    if (this._marbles.length > 1) {
-      this._marbles.sort((a, b) => b.y - a.y);
-    }
-
     if (this._stage) {
-      const shouldFreezeSoloFollow = this._isRunning && this._winners.length > 0 && this._marbles.length <= 1;
       this._camera.update({
         marbles: this._marbles,
         stage: this._stage,
         needToZoom: this._goalDist < zoomThreshold,
-        freezeFollow: shouldFreezeSoloFollow,
         targetIndex: 0,
       });
     }
@@ -149,6 +143,7 @@ export class Roulette extends EventTarget {
 
   private _updateMarbles(deltaTime: number) {
     if (!this._stage) return;
+    const remainingMarbles: Marble[] = [];
 
     for (let i = 0; i < this._marbles.length; i++) {
       const marble = this._marbles[i];
@@ -185,14 +180,21 @@ export class Roulette extends EventTarget {
         // Remove finished marbles from the physics world immediately so they no longer
         // collide inside the narrow goal funnel and create end-of-race bottlenecks.
         this.physics.removeMarble(marble.id);
+        continue;
       }
+
+      remainingMarbles.push(marble);
     }
+
+    if (remainingMarbles.length > 1) {
+      remainingMarbles.sort((a, b) => b.y - a.y);
+    }
+
+    this._marbles = remainingMarbles;
 
     const topY = this._marbles[0] ? this._marbles[0].y : 0;
     this._goalDist = Math.abs(this._stage.zoomY - topY);
     this._timeScale = this._calcTimeScale();
-
-    this._marbles = this._marbles.filter((marble) => marble.y <= this._stage?.goalY);
   }
 
   private _calcTimeScale(): number {
