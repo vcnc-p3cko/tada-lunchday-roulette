@@ -122,9 +122,9 @@ function normalizeConfig(rawConfig, configSource) {
       slackEnabled: Boolean(slackWebhookUrl),
       subtitle: normalizeString(
         rawConfig.subtitle,
-        '직원 한 명당 구슬 하나. 오늘 참여 인원을 골라 4~5명 런치데이 팀을 만듭니다.'
+        '직원 한 명당 구슬 하나. 런치데이 팀 편성과 꼴지뽑기를 한 화면에서 진행합니다.'
       ),
-      title: normalizeString(rawConfig.title, '타다 런치데이 룰렛'),
+      title: normalizeString(rawConfig.title, '타다 룰렛'),
     },
     slackChannelLabel,
     slackWebhookUrl,
@@ -169,7 +169,7 @@ function normalizeString(value, fallback) {
 }
 
 function buildSlackMessage(payload) {
-  const title = normalizeString(payload?.title, '타다 런치데이 룰렛 결과');
+  const title = normalizeString(payload?.title, '타다 룰렛 결과');
   const organization = normalizeString(payload?.organization, '타다');
   const teams = Array.isArray(payload?.teams) ? payload.teams : [];
 

@@ -1,6 +1,6 @@
-# 타다 런치데이 룰렛
+# 타다 룰렛
 
-`lazygyu/roulette`를 기반으로, TADA 런치데이 팀 편성용으로 커스터마이즈한 Cloud Run 배포 대상 앱입니다.
+`lazygyu/roulette`를 기반으로, TADA 내부 이벤트용으로 커스터마이즈한 Cloud Run 배포 대상 앱입니다.
 
 ## 핵심 기능
 
@@ -8,9 +8,10 @@
 - 시트 복사 붙여넣기용 직원 명단 입력
 - 직원 1인당 구슬 1개 생성
 - 참여자 선택 후 구슬 레이스 시작
-- 완주 순서대로 `A1 → B1 → C1 → A2` 방식의 라운드로빈 슬롯 편성
+- `런치데이` 모드: 완주 순서대로 `A1 → B1 → C1 → A2` 방식의 라운드로빈 슬롯 편성
+- `꼴지뽑기` 모드: 완주 순서대로 전체 순위 집계
 - 같은 조직팀은 같은 공 색상 사용
-- 완료된 결과를 Slack 채널로 게시
+- 완료된 결과를 Slack용 마크다운으로 복사
 - Cloud Run 배포용 `Express + Dockerfile` 구성
 
 ## 런타임 설정
@@ -27,8 +28,8 @@
 
 ```json
 {
-  "title": "타다 런치데이 룰렛",
-  "subtitle": "직원 한 명당 구슬 하나. 오늘 참여 인원을 골라 4~5명 런치데이 팀을 만듭니다.",
+  "title": "타다 룰렛",
+  "subtitle": "직원 한 명당 구슬 하나. 런치데이 팀 편성과 꼴지뽑기를 한 화면에서 진행합니다.",
   "organization": "타다",
   "slackChannelLabel": "#lunchday",
   "minTeamSize": 4,
@@ -74,5 +75,5 @@ gcloud run deploy tada-marble-roulette \
   --source . \
   --region asia-northeast3 \
   --allow-unauthenticated \
-  --set-env-vars APP_CONFIG_JSON='{"title":"타다 런치데이 룰렛","organization":"타다","slackChannelLabel":"#lunchday","minTeamSize":4,"maxTeamSize":5,"employees":[{"id":"EMP-001","name":"가은","team":"Product"}]}',SLACK_WEBHOOK_URL='https://hooks.slack.com/services/XXX/YYY/ZZZ'
+  --set-env-vars APP_CONFIG_JSON='{"title":"타다 룰렛","organization":"타다","slackChannelLabel":"#lunchday","minTeamSize":4,"maxTeamSize":5,"employees":[{"id":"EMP-001","name":"가은","team":"Product"}]}',SLACK_WEBHOOK_URL='https://hooks.slack.com/services/XXX/YYY/ZZZ'
 ```

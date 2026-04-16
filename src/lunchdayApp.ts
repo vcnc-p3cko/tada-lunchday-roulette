@@ -1,4 +1,4 @@
-import type { AppConfig, EmployeeConfig, TeamBucket, TeamMember } from './lunchdayTypes';
+import type { AppConfig, EmployeeConfig, GameMode, TeamBucket, TeamMember } from './lunchdayTypes';
 import options from './options';
 import type { Roulette } from './roulette';
 import { sampleConfig } from './sampleConfig';
@@ -12,7 +12,10 @@ import {
 
 const STORAGE_KEY = 'tada-lunchday-selected-employees';
 const CUSTOM_EMPLOYEES_KEY = 'tada-lunchday-custom-employees';
+const MODE_STORAGE_KEY = 'tada-roulette-game-mode';
 const MAX_LOG_ITEMS = 8;
+const APP_NAME = '타다 룰렛';
+const APP_VERSION = 'v1.0.0';
 const SOURCE_TEAM_PALETTE = [
   '#d8a7ab',
   '#e6bc9a',
@@ -28,6 +31,7 @@ const SOURCE_TEAM_PALETTE = [
 
 type RunState = {
   finishedLabels: Set<string>;
+  finishedMembers: TeamMember[];
   participantsByLabel: Map<string, EmployeeConfig>;
   teamBuckets: TeamBucket[];
   warnings: string[];
@@ -39,12 +43,14 @@ type ElementMap = {
   clearButton: HTMLButtonElement;
   configMeta: HTMLParagraphElement;
   countdown: HTMLDivElement;
+  currentLabelCaption: HTMLElement;
   currentTeamLabel: HTMLElement;
   employeeList: HTMLDivElement;
   eventLog: HTMLOListElement;
   finishOverlay: HTMLDivElement;
   finisherCount: HTMLElement;
-  lastFinisher: HTMLElement;
+  modeLastPlaceButton: HTMLButtonElement;
+  modeLunchdayButton: HTMLButtonElement;
   pasteApplyButton: HTMLButtonElement;
   pasteEmployeesButton: HTMLButtonElement;
   pasteModal: HTMLDivElement;
@@ -54,20 +60,29 @@ type ElementMap = {
   plannedTeamCount: HTMLElement;
   publishSlackButton: HTMLButtonElement;
   refreshPreviewButton: HTMLButtonElement;
+  releaseModal: HTMLDivElement;
+  releaseModalBackdrop: HTMLDivElement;
+  releaseModalCloseButton: HTMLButtonElement;
   resetButton: HTMLButtonElement;
+  resultEyebrow: HTMLDivElement;
+  resultTitle: HTMLHeadingElement;
   searchInput: HTMLInputElement;
   selectAllButton: HTMLButtonElement;
   selectedCount: HTMLElement;
   selectionSummary: HTMLDivElement;
   stageMeta: HTMLParagraphElement;
-  stageStateLabel: HTMLElement;
+  stageTitle: HTMLHeadingElement;
   startButton: HTMLButtonElement;
   statusBadge: HTMLSpanElement;
   slackChannelMeta: HTMLSpanElement;
   teamBoard: HTMLDivElement;
+  teamCountControl: HTMLDivElement;
+  teamCountLabel: HTMLElement;
   teamCountMinus: HTMLButtonElement;
   teamCountPlus: HTMLButtonElement;
   teamSizeCount: HTMLElement;
+  teamSizeControl: HTMLDivElement;
+  teamSizeLabel: HTMLElement;
   teamSizeMinus: HTMLButtonElement;
   teamSizePlus: HTMLButtonElement;
   teamSizePreview: HTMLDivElement;
@@ -75,6 +90,7 @@ type ElementMap = {
   totalEmployeeCount: HTMLElement;
   warningBox: HTMLDivElement;
   updateMarquee: HTMLDivElement;
+  versionButton: HTMLButtonElement;
 };
 
 export class LunchdayApp {
@@ -86,6 +102,7 @@ export class LunchdayApp {
   private marqueeTimer: number | null = null;
   private lastLogEntries: string[] = [];
   private isPublishingSlack = false;
+  private gameMode: GameMode = 'lunchday';
   private teamCountSetting = 0;
   private teamSizeSetting = 0;
   private teamSettingMode: 'count' | 'size' = 'count';
@@ -107,6 +124,7 @@ export class LunchdayApp {
     this.config = await this.loadConfig();
     this.restoreCustomEmployees();
     this.restoreSelection();
+    this.restoreMode();
     this.renderStaticConfig();
     this.syncPreview();
   }
@@ -118,12 +136,14 @@ export class LunchdayApp {
       clearButton: this.query('#clearButton'),
       configMeta: this.query('#configMeta'),
       countdown: this.query('#countdown'),
+      currentLabelCaption: this.query('#currentLabelCaption'),
       currentTeamLabel: this.query('#currentTeamLabel'),
       employeeList: this.query('#employeeList'),
       eventLog: this.query('#eventLog'),
       finishOverlay: this.query('#finishOverlay'),
       finisherCount: this.query('#finisherCount'),
-      lastFinisher: this.query('#lastFinisher'),
+      modeLastPlaceButton: this.query('#modeLastPlaceButton'),
+      modeLunchdayButton: this.query('#modeLunchdayButton'),
       pasteApplyButton: this.query('#pasteApplyButton'),
       pasteEmployeesButton: this.query('#pasteEmployeesButton'),
       pasteModal: this.query('#pasteModal'),
@@ -133,20 +153,29 @@ export class LunchdayApp {
       plannedTeamCount: this.query('#plannedTeamCount'),
       publishSlackButton: this.query('#publishSlackButton'),
       refreshPreviewButton: this.query('#refreshPreviewButton'),
+      releaseModal: this.query('#releaseModal'),
+      releaseModalBackdrop: this.query('#releaseModalBackdrop'),
+      releaseModalCloseButton: this.query('#releaseModalCloseButton'),
       resetButton: this.query('#resetButton'),
+      resultEyebrow: this.query('#resultEyebrow'),
+      resultTitle: this.query('#resultTitle'),
       searchInput: this.query('#searchInput'),
       selectAllButton: this.query('#selectAllButton'),
       selectedCount: this.query('#selectedCount'),
       selectionSummary: this.query('#selectionSummary'),
       stageMeta: this.query('#stageMeta'),
-      stageStateLabel: this.query('#stageStateLabel'),
+      stageTitle: this.query('#stageTitle'),
       startButton: this.query('#startButton'),
       statusBadge: this.query('#statusBadge'),
       slackChannelMeta: this.query('#slackChannelMeta'),
       teamBoard: this.query('#teamBoard'),
+      teamCountControl: this.query('#teamCountControl'),
+      teamCountLabel: this.query('#teamCountLabel'),
       teamCountMinus: this.query('#teamCountMinus'),
       teamCountPlus: this.query('#teamCountPlus'),
       teamSizeCount: this.query('#teamSizeCount'),
+      teamSizeControl: this.query('#teamSizeControl'),
+      teamSizeLabel: this.query('#teamSizeLabel'),
       teamSizeMinus: this.query('#teamSizeMinus'),
       teamSizePlus: this.query('#teamSizePlus'),
       teamSizePreview: this.query('#teamSizePreview'),
@@ -154,10 +183,19 @@ export class LunchdayApp {
       totalEmployeeCount: this.query('#totalEmployeeCount'),
       warningBox: this.query('#warningBox'),
       updateMarquee: this.query('#updateMarquee'),
+      versionButton: this.query('#versionButton'),
     };
   }
 
   private bindEvents() {
+    this.elements.modeLunchdayButton.addEventListener('click', () => {
+      this.setGameMode('lunchday');
+    });
+
+    this.elements.modeLastPlaceButton.addEventListener('click', () => {
+      this.setGameMode('last-place');
+    });
+
     this.elements.searchInput.addEventListener('input', () => {
       this.renderEmployeeList();
     });
@@ -204,6 +242,18 @@ export class LunchdayApp {
 
     this.elements.pasteModalBackdrop.addEventListener('click', () => {
       this.togglePasteModal(false);
+    });
+
+    this.elements.versionButton.addEventListener('click', () => {
+      this.toggleReleaseModal(true);
+    });
+
+    this.elements.releaseModalCloseButton.addEventListener('click', () => {
+      this.toggleReleaseModal(false);
+    });
+
+    this.elements.releaseModalBackdrop.addEventListener('click', () => {
+      this.toggleReleaseModal(false);
     });
 
     this.elements.pasteApplyButton.addEventListener('click', () => {
@@ -271,14 +321,21 @@ export class LunchdayApp {
       this.isRunning = false;
       this.elements.finishOverlay.classList.remove('hidden');
       this.elements.updateMarquee.classList.add('hidden');
-      this.setStatus('편성 완료', 'complete');
-      this.elements.stageStateLabel.textContent = '편성 완료';
+      this.setStatus(this.gameMode === 'lunchday' ? '편성 완료' : '순위 확정', 'complete');
       this.updateActionState();
       this.renderEmployeeList();
+      this.renderSummaryTiles(this.getSelectedEmployees().length, this.runState.teamBuckets.length);
+      this.renderResultBoard(this.runState.teamBuckets);
 
       const completedCount = this.runState.finishedLabels.size;
-      this.appendLog(`팀 편성이 완료되었습니다. 총 ${completedCount}명이 완주했습니다.`);
-      this.showToast('런치데이 팀 편성이 완료되었습니다.');
+      this.appendLog(
+        this.gameMode === 'lunchday'
+          ? `팀 편성이 완료되었습니다. 총 ${completedCount}명이 완주했습니다.`
+          : `순위 집계가 완료되었습니다. 총 ${completedCount}명이 완주했습니다.`
+      );
+      this.showToast(
+        this.gameMode === 'lunchday' ? '런치데이 팀 편성이 완료되었습니다.' : '꼴지뽑기 순위가 확정되었습니다.'
+      );
       window.setTimeout(() => {
         if (!this.isRunning) {
           this.roulette.clearMarbles();
@@ -376,15 +433,42 @@ export class LunchdayApp {
     }
   }
 
+  private restoreMode() {
+    const storedMode = window.localStorage.getItem(MODE_STORAGE_KEY);
+    if (storedMode === 'lunchday' || storedMode === 'last-place') {
+      this.gameMode = storedMode;
+    }
+  }
+
   private persistSelection() {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...this.selectedIds]));
   }
 
+  private persistMode() {
+    window.localStorage.setItem(MODE_STORAGE_KEY, this.gameMode);
+  }
+
+  private setGameMode(mode: GameMode) {
+    if (this.isRunning || this.gameMode === mode) {
+      return;
+    }
+
+    this.gameMode = mode;
+    this.persistMode();
+    this.resetRunState();
+    this.syncPreview();
+  }
+
+  private toggleReleaseModal(isOpen: boolean) {
+    this.elements.releaseModal.classList.toggle('hidden', !isOpen);
+  }
+
   private renderStaticConfig() {
-    this.elements.appTitle.textContent = this.config.title;
+    this.elements.appTitle.textContent = APP_NAME;
     this.elements.appSubtitle.textContent = this.config.subtitle;
     this.elements.totalEmployeeCount.textContent = `${this.config.employees.length}`;
-    this.elements.configMeta.textContent = `${this.config.organization} · ${this.config.configSource} · 직원 ${this.config.employees.length}명`;
+    this.elements.configMeta.textContent = `${this.config.organization} · ${APP_VERSION} · ${this.config.configSource} · 직원 ${this.config.employees.length}명`;
+    this.elements.versionButton.textContent = APP_VERSION;
 
     if (this.config.slackChannelLabel) {
       this.elements.slackChannelMeta.classList.remove('hidden');
@@ -397,31 +481,36 @@ export class LunchdayApp {
 
   private syncPreview(showToast = false) {
     const selectedEmployees = this.getSelectedEmployees();
-    const teamPlan = this.createTeamPlan(selectedEmployees.length);
+    const teamPlan =
+      this.gameMode === 'lunchday' ? this.createTeamPlan(selectedEmployees.length) : { sizes: [], warnings: [] };
 
     this.resetRunState();
-    this.renderSelectionSummary(selectedEmployees);
+    this.renderModePresentation();
     this.renderEmployeeList();
+    this.renderSelectionSummary(selectedEmployees);
     this.renderTeamPreview(teamPlan.sizes);
-    this.renderTeamBoard(buildTeamBuckets(teamPlan.sizes));
-    this.renderWarnings(teamPlan.warnings);
+    this.renderResultBoard(this.gameMode === 'lunchday' ? buildTeamBuckets(teamPlan.sizes) : []);
+    this.renderWarnings(this.gameMode === 'lunchday' ? teamPlan.warnings : []);
+    this.renderSummaryTiles(selectedEmployees.length, teamPlan.sizes.length);
 
-    this.elements.plannedTeamCount.textContent = `${teamPlan.sizes.length}`;
-    this.elements.selectedCount.textContent = `${selectedEmployees.length}`;
-    this.elements.teamSizeCount.textContent = `${this.teamSizeSetting}`;
     this.elements.finisherCount.textContent = '0';
-    this.elements.lastFinisher.textContent = '-';
-    this.elements.currentTeamLabel.textContent = teamPlan.sizes.length ? '순차 배정' : '-';
-    this.elements.stageStateLabel.textContent = '대기';
+    this.elements.currentTeamLabel.textContent =
+      this.gameMode === 'lunchday' ? (teamPlan.sizes.length ? '순차 배정' : '-') : '순위 집계 대기';
 
     this.roulette.setMarbles(selectedEmployees.map((employee) => employee.marbleLabel));
     this.applyMarbleColors(selectedEmployees);
 
     if (selectedEmployees.length) {
-      this.elements.stageMeta.textContent = `${selectedEmployees.length}명이 출발 대기 중입니다. 프리뷰 상태에서 바로 시작할 수 있습니다.`;
+      this.elements.stageMeta.textContent =
+        this.gameMode === 'lunchday'
+          ? `${selectedEmployees.length}명이 출발 대기 중입니다. 프리뷰 상태에서 바로 시작할 수 있습니다.`
+          : `${selectedEmployees.length}명의 순위를 기록할 준비가 끝났습니다. 프리뷰 상태에서 바로 시작할 수 있습니다.`;
       this.setStatus('대기', 'ready');
     } else {
-      this.elements.stageMeta.textContent = '참여자를 선택하면 출발 위치에 구슬 프리뷰가 반영됩니다.';
+      this.elements.stageMeta.textContent =
+        this.gameMode === 'lunchday'
+          ? '참여자를 선택하면 출발 위치에 구슬 프리뷰가 반영됩니다.'
+          : '참여자를 선택하면 꼴지뽑기 순위판 프리뷰가 준비됩니다.';
       this.setStatus('선택 대기', 'loading');
     }
 
@@ -434,6 +523,38 @@ export class LunchdayApp {
 
   private renderSelectionSummary(selectedEmployees: EmployeeConfig[]) {
     this.elements.selectionSummary.textContent = summarizeSelectedTeams(selectedEmployees);
+  }
+
+  private renderModePresentation() {
+    const isLunchdayMode = this.gameMode === 'lunchday';
+
+    this.elements.modeLunchdayButton.classList.toggle('is-active', isLunchdayMode);
+    this.elements.modeLastPlaceButton.classList.toggle('is-active', !isLunchdayMode);
+    this.elements.stageTitle.textContent = isLunchdayMode ? '런치데이' : '꼴지뽑기';
+    this.elements.resultTitle.textContent = isLunchdayMode ? '런치데이 팀' : '꼴지 순위';
+    this.elements.resultEyebrow.textContent = isLunchdayMode ? 'Result Board' : 'Ranking Board';
+    this.elements.currentLabelCaption.textContent = isLunchdayMode ? '배정 흐름' : '집계 흐름';
+    this.elements.teamCountLabel.textContent = isLunchdayMode ? '팀 갯수' : '집계 완료';
+    this.elements.teamSizeLabel.textContent = isLunchdayMode ? '팀당 인원' : '꼴지';
+    this.elements.teamCountControl.classList.toggle('is-static', !isLunchdayMode);
+    this.elements.teamSizeControl.classList.toggle('is-static', !isLunchdayMode);
+    this.elements.publishSlackButton.textContent = isLunchdayMode ? '슬랙 복사' : '순위 복사';
+  }
+
+  private renderSummaryTiles(selectedCount: number, plannedTeamCount: number) {
+    this.elements.selectedCount.textContent = `${selectedCount}`;
+
+    if (this.gameMode === 'lunchday') {
+      this.elements.plannedTeamCount.textContent = `${plannedTeamCount}`;
+      this.elements.teamSizeCount.textContent = `${this.teamSizeSetting}`;
+      return;
+    }
+
+    const finishedCount = this.runState?.finishedMembers.length ?? 0;
+    const lastPlaceMember = this.runState?.finishedMembers.at(-1)?.name ?? '-';
+
+    this.elements.plannedTeamCount.textContent = `${finishedCount}`;
+    this.elements.teamSizeCount.textContent = lastPlaceMember;
   }
 
   private renderEmployeeList() {
@@ -495,7 +616,14 @@ export class LunchdayApp {
       .join('');
   }
 
-  private renderTeamBoard(teamBuckets: TeamBucket[]) {
+  private renderResultBoard(teamBuckets: TeamBucket[]) {
+    if (this.gameMode === 'last-place') {
+      this.renderRankingBoard();
+      return;
+    }
+
+    this.elements.teamBoard.classList.remove('is-ranking-board');
+
     if (!teamBuckets.length) {
       this.elements.teamBoard.innerHTML =
         '<div class="empty-state">룰렛을 시작하면 완주 순서대로 팀 카드가 채워집니다.</div>';
@@ -543,6 +671,49 @@ export class LunchdayApp {
       .join('');
   }
 
+  private renderRankingBoard() {
+    this.elements.teamBoard.classList.add('is-ranking-board');
+
+    const finishedMembers = this.runState?.finishedMembers ?? [];
+    const selectedCount = this.getSelectedEmployees().length;
+
+    if (!finishedMembers.length) {
+      this.elements.teamBoard.innerHTML =
+        '<div class="empty-state">룰렛을 시작하면 완주 순서대로 전체 순위가 채워집니다.</div>';
+      return;
+    }
+
+    const nextRank = finishedMembers.length + 1;
+    const cards = finishedMembers.map((member, index) => {
+      const isLastPlace = finishedMembers.length === selectedCount && index === finishedMembers.length - 1;
+
+      return `
+        <article class="rank-card ${isLastPlace ? 'is-last-place' : ''}">
+          <div class="rank-card-head">
+            <span class="rank-card-badge">${member.finishRank}위</span>
+            ${isLastPlace ? '<span class="rank-card-label">꼴지</span>' : ''}
+          </div>
+          <div class="rank-card-name">${escapeHtml(member.name)}</div>
+          <div class="rank-card-team">${escapeHtml(member.team)}</div>
+        </article>
+      `;
+    });
+
+    if (finishedMembers.length < selectedCount) {
+      cards.push(`
+        <article class="rank-card is-pending">
+          <div class="rank-card-head">
+            <span class="rank-card-badge">${nextRank}위</span>
+          </div>
+          <div class="rank-card-name">집계 중</div>
+          <div class="rank-card-team">다음 완주자를 기다리고 있습니다.</div>
+        </article>
+      `);
+    }
+
+    this.elements.teamBoard.innerHTML = cards.join('');
+  }
+
   private renderWarnings(warnings: string[]) {
     if (!warnings.length) {
       this.elements.warningBox.classList.add('hidden');
@@ -557,6 +728,7 @@ export class LunchdayApp {
   private updateActionState() {
     const selectionCount = this.getSelectedEmployees().length;
     const disabled = selectionCount === 0 || this.isRunning;
+    const disableTeamControls = disabled || this.gameMode !== 'lunchday';
 
     this.elements.startButton.disabled = disabled;
     this.elements.clearButton.disabled = this.isRunning;
@@ -565,10 +737,10 @@ export class LunchdayApp {
     this.elements.resetButton.disabled = this.isRunning;
     this.elements.selectAllButton.disabled = this.isRunning;
     this.elements.searchInput.disabled = this.isRunning;
-    this.elements.teamCountMinus.disabled = disabled || this.teamCountSetting <= 1;
-    this.elements.teamCountPlus.disabled = disabled || this.teamCountSetting >= Math.max(1, selectionCount);
-    this.elements.teamSizeMinus.disabled = disabled || this.teamSizeSetting <= 1;
-    this.elements.teamSizePlus.disabled = disabled || this.teamSizeSetting >= Math.max(1, selectionCount);
+    this.elements.teamCountMinus.disabled = disableTeamControls || this.teamCountSetting <= 1;
+    this.elements.teamCountPlus.disabled = disableTeamControls || this.teamCountSetting >= Math.max(1, selectionCount);
+    this.elements.teamSizeMinus.disabled = disableTeamControls || this.teamSizeSetting <= 1;
+    this.elements.teamSizePlus.disabled = disableTeamControls || this.teamSizeSetting >= Math.max(1, selectionCount);
     this.elements.publishSlackButton.disabled = this.isPublishingSlack || !this.canPublishSlack();
   }
 
@@ -583,35 +755,40 @@ export class LunchdayApp {
       return;
     }
 
-    const teamPlan = this.createTeamPlan(selectedEmployees.length);
-    const teamBuckets = buildTeamBuckets(teamPlan.sizes);
+    const teamPlan =
+      this.gameMode === 'lunchday' ? this.createTeamPlan(selectedEmployees.length) : { sizes: [], warnings: [] };
+    const teamBuckets = this.gameMode === 'lunchday' ? buildTeamBuckets(teamPlan.sizes) : [];
 
     this.runState = {
       finishedLabels: new Set<string>(),
+      finishedMembers: [],
       participantsByLabel: new Map(selectedEmployees.map((employee) => [employee.marbleLabel, employee])),
       teamBuckets,
       warnings: teamPlan.warnings,
     };
 
-    this.renderWarnings(teamPlan.warnings);
-    this.renderTeamBoard(teamBuckets);
+    this.renderWarnings(this.gameMode === 'lunchday' ? teamPlan.warnings : []);
+    this.renderResultBoard(teamBuckets);
     this.lastLogEntries = [];
     this.renderEventLog();
     this.isRunning = true;
     this.elements.finishOverlay.classList.add('hidden');
     this.updateActionState();
     this.renderEmployeeList();
+    this.renderSummaryTiles(selectedEmployees.length, teamBuckets.length);
 
     this.roulette.setMarbles(selectedEmployees.map((employee) => employee.marbleLabel));
     this.applyMarbleColors(selectedEmployees);
 
     this.setStatus('카운트다운', 'running');
-    this.elements.stageStateLabel.textContent = '카운트다운';
-    this.appendLog(`${selectedEmployees.length}명으로 런치데이 팀 편성을 시작합니다.`);
+    this.appendLog(
+      this.gameMode === 'lunchday'
+        ? `${selectedEmployees.length}명으로 런치데이 팀 편성을 시작합니다.`
+        : `${selectedEmployees.length}명으로 꼴지뽑기 순위 집계를 시작합니다.`
+    );
 
     await this.playCountdown();
 
-    this.elements.stageStateLabel.textContent = '진행 중';
     this.setStatus('진행 중', 'running');
     this.roulette.start();
   }
@@ -639,11 +816,6 @@ export class LunchdayApp {
 
     this.runState.finishedLabels.add(marbleLabel);
 
-    const teamBucket = findTeamBucketByRank(this.runState.teamBuckets, finishRank);
-    if (!teamBucket) {
-      return;
-    }
-
     const member: TeamMember = {
       employeeId: participant.id,
       finishRank,
@@ -651,20 +823,38 @@ export class LunchdayApp {
       name: participant.name,
       team: participant.team,
     };
-
-    teamBucket.members.push(member);
+    this.runState.finishedMembers.push(member);
 
     this.elements.finisherCount.textContent = `${this.runState.finishedLabels.size}`;
-    this.elements.lastFinisher.textContent = participant.name;
-    this.elements.currentTeamLabel.textContent = findTeamBucketByRank(this.runState.teamBuckets, finishRank + 1)
-      ? '순차 배정 중'
-      : '모든 팀 배정 완료';
+    if (this.gameMode === 'lunchday') {
+      const teamBucket = findTeamBucketByRank(this.runState.teamBuckets, finishRank);
+      if (!teamBucket) {
+        return;
+      }
 
-    this.appendLog(
-      `${finishRank}등 ${participant.name} 도착 · 팀 배정 (${teamBucket.members.length}/${teamBucket.targetSize})`
-    );
-    this.flashMarquee(`${participant.name} 배정 완료`);
-    this.renderTeamBoard(this.runState.teamBuckets);
+      teamBucket.members.push(member);
+      this.elements.currentTeamLabel.textContent = findTeamBucketByRank(this.runState.teamBuckets, finishRank + 1)
+        ? '순차 배정 중'
+        : '모든 팀 배정 완료';
+
+      this.appendLog(
+        `${finishRank}등 ${participant.name} 도착 · 팀 배정 (${teamBucket.members.length}/${teamBucket.targetSize})`
+      );
+      this.flashMarquee(`${participant.name} 배정 완료`);
+      this.renderResultBoard(this.runState.teamBuckets);
+      this.renderSummaryTiles(this.getSelectedEmployees().length, this.runState.teamBuckets.length);
+      return;
+    }
+
+    this.elements.currentTeamLabel.textContent =
+      this.runState.finishedMembers.length < this.getSelectedEmployees().length
+        ? `${this.runState.finishedMembers.length} / ${this.getSelectedEmployees().length}명 집계`
+        : '전체 순위 확정';
+
+    this.appendLog(`${finishRank}위 ${participant.name} 기록`);
+    this.flashMarquee(`${participant.name} ${finishRank}위`);
+    this.renderResultBoard(this.runState.teamBuckets);
+    this.renderSummaryTiles(this.getSelectedEmployees().length, this.runState.teamBuckets.length);
   }
 
   private applyMarbleColors(employees: EmployeeConfig[]) {
@@ -779,7 +969,11 @@ export class LunchdayApp {
 
   private async publishResultsToSlack() {
     if (!this.runState || !this.canPublishSlack()) {
-      this.showToast('팀 편성이 끝난 뒤에 Slack용 결과를 복사할 수 있습니다.');
+      this.showToast(
+        this.gameMode === 'lunchday'
+          ? '팀 편성이 끝난 뒤에 Slack용 결과를 복사할 수 있습니다.'
+          : '순위 집계가 끝난 뒤에 Slack용 결과를 복사할 수 있습니다.'
+      );
       return;
     }
 
@@ -809,8 +1003,19 @@ export class LunchdayApp {
     }
 
     const selectedCount = this.getSelectedEmployees().length;
-    const header = [`*${this.config.title} 결과*`, `총 ${selectedCount}명 · ${this.runState.teamBuckets.length}개 팀`];
+    if (this.gameMode === 'last-place') {
+      const rankingLines = this.runState.finishedMembers.map((member, index, members) => {
+        const suffix = index === members.length - 1 ? ' (꼴지)' : '';
+        return `${member.finishRank}. ${member.name} | ${member.team}${suffix}`;
+      });
 
+      return [`*${this.config.title} 꼴지뽑기 결과*`, `총 ${selectedCount}명`, '', ...rankingLines].join('\n');
+    }
+
+    const header = [
+      `*${this.config.title} 런치데이 결과*`,
+      `총 ${selectedCount}명 · ${this.runState.teamBuckets.length}개 팀`,
+    ];
     const teamSections = this.runState.teamBuckets.map((team) => {
       const lines = [`*${team.teamCode.replace('TEAM-', '팀')}* (${team.members.length}/${team.targetSize})`];
 

@@ -19,6 +19,6 @@ export const sampleConfig: AppConfig = {
   organization: '타다',
   slackChannelLabel: '',
   slackEnabled: false,
-  subtitle: '직원 한 명당 구슬 하나. 오늘 참여 인원을 골라 4~5명 런치데이 팀을 만듭니다.',
-  title: '타다 런치데이 룰렛',
+  subtitle: '직원 한 명당 구슬 하나. 런치데이 팀 편성과 꼴지뽑기를 한 화면에서 진행합니다.',
+  title: '타다 룰렛',
 };

@@ -6,6 +6,8 @@ export type EmployeeConfig = {
   marbleLabel: string;
 };
 
+export type GameMode = 'lunchday' | 'last-place';
+
 export type AppConfig = {
   title: string;
   subtitle: string;
