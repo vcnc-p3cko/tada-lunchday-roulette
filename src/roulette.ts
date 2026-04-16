@@ -133,10 +133,12 @@ export class Roulette extends EventTarget {
     }
 
     if (this._stage) {
+      const shouldFreezeSoloFollow = this._isRunning && this._winners.length > 0 && this._marbles.length <= 1;
       this._camera.update({
         marbles: this._marbles,
         stage: this._stage,
         needToZoom: this._goalDist < zoomThreshold,
+        freezeFollow: shouldFreezeSoloFollow,
         targetIndex: 0,
       });
     }

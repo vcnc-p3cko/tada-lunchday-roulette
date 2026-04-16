@@ -73,15 +73,17 @@ export class Camera {
     marbles,
     stage,
     needToZoom,
+    freezeFollow,
     targetIndex,
   }: {
     marbles: Marble[];
     stage: StageDef;
     needToZoom: boolean;
+    freezeFollow?: boolean;
     targetIndex: number;
   }) {
     // set target position
-    if (!this._locked) {
+    if (!this._locked && !freezeFollow) {
       this._calcTargetPositionAndZoom(marbles, stage, needToZoom, targetIndex);
     }
 
