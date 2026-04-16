@@ -14,16 +14,16 @@ const STORAGE_KEY = 'tada-lunchday-selected-employees';
 const CUSTOM_EMPLOYEES_KEY = 'tada-lunchday-custom-employees';
 const MAX_LOG_ITEMS = 8;
 const SOURCE_TEAM_PALETTE = [
-  '#ef5a5a',
-  '#f0ad42',
-  '#d2f24b',
-  '#6be96b',
-  '#7ff0d8',
-  '#70dcf7',
-  '#6d9fff',
-  '#9968ff',
-  '#e46cff',
-  '#ff78c9',
+  '#d8a7ab',
+  '#e6bc9a',
+  '#ddd2aa',
+  '#bfd2b2',
+  '#abcdbd',
+  '#abcfd1',
+  '#b6c5df',
+  '#c9bedf',
+  '#d9bfd2',
+  '#d7ccc2',
 ];
 
 type RunState = {
@@ -670,7 +670,7 @@ export class LunchdayApp {
   private applyMarbleColors(employees: EmployeeConfig[]) {
     const teamColors = buildEmployeeTeamColorMap(this.config.employees);
     employees.forEach((employee) => {
-      this.roulette.setMarbleColor(employee.marbleLabel, teamColors.get(employee.team) ?? '#7ff0d8');
+      this.roulette.setMarbleColor(employee.marbleLabel, teamColors.get(employee.team) ?? '#abcdbd');
     });
   }
 
