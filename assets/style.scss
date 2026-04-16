@@ -644,30 +644,63 @@ button.ghost {
   inset: 0;
   left: 0;
   transform: none;
-  display: grid;
-  place-items: center;
-  padding: 6vh 6vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4vh 4vw;
   background:
-    radial-gradient(circle at center, rgba(6, 9, 12, 0.96) 0%, rgba(6, 9, 12, 0.94) 18%, rgba(6, 9, 12, 0.7) 34%, rgba(6, 9, 12, 0.16) 55%, transparent 72%);
+    radial-gradient(circle at 50% 50%, rgba(8, 12, 10, 0.9) 0%, rgba(8, 12, 10, 0.76) 36%, rgba(8, 12, 10, 0.34) 62%, rgba(8, 12, 10, 0.06) 82%, transparent 100%),
+    linear-gradient(180deg, rgba(3, 5, 4, 0.48), rgba(3, 5, 4, 0.7));
 }
 
-.finish-overlay span {
+.finish-overlay::before,
+.finish-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.finish-overlay::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 10%, transparent 90%, rgba(255, 255, 255, 0.04)),
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.045) 1px, transparent 1px, transparent 44px);
+  mix-blend-mode: screen;
+  opacity: 0.2;
+}
+
+.finish-overlay::after {
+  background:
+    radial-gradient(circle at center, transparent 54%, rgba(0, 0, 0, 0.42) 100%);
+  opacity: 0.95;
+}
+
+.finish-overlay-copy {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 980px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.08em, 0.9vh, 0.18em);
+  transform: translateY(-1vh);
+}
+
+.finish-overlay-copy span {
   display: block;
-  text-align: center;
-  color: #f1fff9;
-  font-family: 'Space Grotesk', 'Noto Sans KR', sans-serif;
-  font-size: clamp(3.2rem, 11vw, 8.8rem);
+  color: #ffc21d;
+  font-family: 'Teko', 'Noto Sans KR', sans-serif;
+  font-size: clamp(5rem, 18vw, 12rem);
   font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 0.88;
+  letter-spacing: 0.02em;
+  line-height: 0.8;
+  text-transform: uppercase;
   text-shadow:
-    0 0 22px rgba(127, 240, 216, 0.4),
-    0 0 60px rgba(72, 214, 188, 0.22),
-    0 0 110px rgba(72, 214, 188, 0.12);
+    0 2px 0 rgba(57, 39, 0, 0.55),
+    0 10px 20px rgba(0, 0, 0, 0.34);
 }
 
-.finish-overlay span + span {
-  margin-top: 0.08em;
+.finish-overlay-copy span:nth-child(4) {
+  margin-left: 0.58em;
 }
 
 .hidden {
