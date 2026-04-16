@@ -3,7 +3,7 @@ import { canvasHeight, canvasWidth, initialZoom, Themes } from './data/constants
 import type { StageDef } from './data/maps';
 import type { GameObject } from './gameObject';
 import { KeywordService } from './keywordService';
-import type { Marble } from './marble';
+import { Marble } from './marble';
 import type { ParticleManager } from './particleManager';
 import type { ColorTheme } from './types/ColorTheme';
 import type { MapEntityState } from './types/MapEntity.type';

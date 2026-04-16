@@ -150,7 +150,7 @@ export class Marble {
     if (isMinimap) {
       this._renderMinimap(ctx);
     } else {
-      this._renderNormal(ctx, zoom, outline, skin);
+      this._renderNormal(ctx, zoom, outline, skin, viewPort);
     }
     ctx.setTransform(transform);
   }
@@ -183,7 +183,13 @@ export class Marble {
     ctx.restore();
   }
 
-  private _renderNormal(ctx: CanvasRenderingContext2D, zoom: number, outline: boolean, skin?: CanvasImageSource) {
+  private _renderNormal(
+    ctx: CanvasRenderingContext2D,
+    zoom: number,
+    outline: boolean,
+    skin?: CanvasImageSource,
+    viewPort?: { x: number; y: number; w: number; h: number; zoom: number }
+  ) {
     const hs = this.size / 2;
 
     ctx.fillStyle = this.color;
@@ -198,7 +204,9 @@ export class Marble {
       });
     } else {
       this._drawMarbleBody(ctx, false);
-      this._drawFace(ctx, zoom, viewPort);
+      if (viewPort) {
+        this._drawFace(ctx, zoom, viewPort);
+      }
     }
 
     ctx.shadowColor = '';
