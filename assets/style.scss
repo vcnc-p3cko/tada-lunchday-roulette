@@ -360,6 +360,8 @@ h2 {
   display: block;
   color: rgba(56, 43, 33, 0.72);
   font-size: 0.66rem;
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
 .summary-tile strong {
@@ -374,7 +376,7 @@ h2 {
 
 .summary-control-tile.is-inline-control {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: max-content auto;
   align-items: center;
   gap: 10px;
 }
@@ -779,9 +781,20 @@ button.ghost {
   letter-spacing: 0.02em;
   line-height: 0.8;
   text-transform: uppercase;
+  max-width: 100%;
+  white-space: nowrap;
+  word-break: keep-all;
   text-shadow:
     0 2px 0 rgba(57, 39, 0, 0.55),
     0 10px 20px rgba(0, 0, 0, 0.34);
+}
+
+.finish-overlay.is-rank-result .finish-overlay-copy {
+  width: min(92vw, 1120px);
+}
+
+.finish-overlay.is-rank-result .finish-overlay-copy span {
+  font-size: clamp(4.2rem, 15vw, 10.5rem);
 }
 
 .finish-overlay-copy span:nth-child(4) {
