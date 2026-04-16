@@ -1,10 +1,13 @@
-<!DOCTYPE html><html lang=ko><script type=importmap>{"imports":{"2rDQN":"./Box2D.simd.dd31b167.wasm","8BShk":"./Box2D.simd.5f0a4d5f.js","9DwmV":"./kkwak.673a610d.png","9YLvj":"./waldokun.7e88dd59.png","cdgIR":"./chamru.d6926a56.png","fkRhi":"./junyoop.d27f0cbf.png","h7cmx":"./Box2D.b9b16b27.wasm","ilUZb":"./Box2D.6e6b3e90.js","juMvj":"./ff.7fdc9e82.svg","lfSvD":"./kubin.f3647b70.png"}}</script><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><title>타다 런치데이 룰렛</title><meta name=description content="직원 한 명당 구슬 하나. 참여 인원을 고르고 4~5명 런치데이 팀을 만드는 TADA 내부용 마블 룰렛입니다."><link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&amp;family=Space+Grotesk:wght@500;700&amp;family=Teko:wght@500;600;700&amp;display=swap" rel=stylesheet><link rel=stylesheet href=tada-lunchday-roulette.d048125a.css><body>
+<!DOCTYPE html><html lang=ko><script type=importmap>{"imports":{"2rDQN":"./Box2D.simd.dd31b167.wasm","8BShk":"./Box2D.simd.5f0a4d5f.js","9DwmV":"./kkwak.673a610d.png","9YLvj":"./waldokun.7e88dd59.png","cdgIR":"./chamru.d6926a56.png","fkRhi":"./junyoop.d27f0cbf.png","h7cmx":"./Box2D.b9b16b27.wasm","ilUZb":"./Box2D.6e6b3e90.js","juMvj":"./ff.7fdc9e82.svg","lfSvD":"./kubin.f3647b70.png"}}</script><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><title>타다 룰렛</title><meta name=description content="직원 한 명당 구슬 하나. 런치데이 팀 편성과 꼴지뽑기를 지원하는 TADA 내부용 룰렛입니다."><link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&amp;family=Space+Grotesk:wght@500;700&amp;family=Teko:wght@500;600;700&amp;display=swap" rel=stylesheet><link rel=stylesheet href=tada-lunchday-roulette.57a3ae62.css><body>
     <div class=app-shell>
       <aside class=control-panel>
         <section class=brand-panel>
-          <h1 id=appTitle class=app-glow-title>타다 런치데이 룰렛</h1>
+          <div class=brand-title-row>
+            <h1 id=appTitle class=app-glow-title>타다 룰렛</h1>
+            <button id=versionButton class=version-tag type=button>v1.0.0</button>
+          </div>
           <p id=appSubtitle class=visually-hidden>
-            직원 한 명당 구슬 하나. 오늘 참여 인원을 고르고 4~5명 런치데이 팀을 만듭니다.
+            직원 한 명당 구슬 하나. 런치데이 팀 편성과 꼴지뽑기를 지원하는 TADA 내부용 룰렛입니다.
           </p>
           <p id=configMeta class=visually-hidden>
             환경설정을 불러오는 중입니다.
@@ -12,7 +15,10 @@
         </section>
 
         <section class=selection-surface>
-          <span id=statusBadge class="status-badge visually-hidden">로딩 중</span>
+          <div class=mode-switch role=tablist aria-label="룰렛 모드 선택">
+            <button id=modeLunchdayButton class="is-active mode-switch-button" type=button>런치데이</button>
+            <button id=modeLastPlaceButton class=mode-switch-button type=button>꼴지뽑기</button>
+          </div>
 
           <div class=summary-grid>
             <div class=summary-tile>
@@ -24,16 +30,16 @@
               <strong id=selectedCount>0</strong>
             </div>
             <div class="summary-control-tile summary-tile">
-              <span>팀 갯수</span>
-              <div class=summary-control>
+              <span id=teamCountLabel>팀 갯수</span>
+              <div id=teamCountControl class=summary-control>
                 <button id=teamCountMinus class=stepper-button type=button aria-label="팀 갯수 줄이기">-</button>
                 <strong id=plannedTeamCount>0</strong>
                 <button id=teamCountPlus class=stepper-button type=button aria-label="팀 갯수 늘리기">+</button>
               </div>
             </div>
             <div class="summary-control-tile summary-tile">
-              <span>팀당 인원</span>
-              <div class=summary-control>
+              <span id=teamSizeLabel>팀당 인원</span>
+              <div id=teamSizeControl class=summary-control>
                 <button id=teamSizeMinus class=stepper-button type=button aria-label="팀당 인원 줄이기">-</button>
                 <strong id=teamSizeCount>0</strong>
                 <button id=teamSizePlus class=stepper-button type=button aria-label="팀당 인원 늘리기">+</button>
@@ -69,15 +75,18 @@
 
       <main class=stage-panel>
         <section class="stage-surface surface">
-          <div class=surface-title-row>
+          <div class=stage-toolbar>
             <div>
               <div class=eyebrow>Live Stage</div>
-              <h2>런치데이 드롭</h2>
+              <h2 id=stageTitle>런치데이</h2>
             </div>
-            <div class="button-row compact">
-              <button id=refreshPreviewButton class=ghost type=button>프리뷰 동기화</button>
-              <button id=resetButton class=ghost type=button>리셋</button>
-              <button id=startButton class=primary type=button>룰렛 시작</button>
+            <div class=stage-toolbar-actions>
+              <span id=statusBadge class=status-badge>로딩 중</span>
+              <div class="button-row compact">
+                <button id=refreshPreviewButton class=ghost type=button>프리뷰 동기화</button>
+                <button id=resetButton class=ghost type=button>리셋</button>
+                <button id=startButton class=primary type=button>룰렛 시작</button>
+              </div>
             </div>
           </div>
 
@@ -87,16 +96,8 @@
 
           <div class=stage-chip-row>
             <div class=stage-chip>
-                  <span>배정 흐름</span>
-                  <strong id=currentTeamLabel>순차 배정</strong>
-            </div>
-            <div class=stage-chip>
-              <span>방금 도착</span>
-              <strong id=lastFinisher>-</strong>
-            </div>
-            <div class=stage-chip>
-              <span>진행 상태</span>
-              <strong id=stageStateLabel>대기</strong>
+              <span id=currentLabelCaption>배정 흐름</span>
+              <strong id=currentTeamLabel>순차 배정</strong>
             </div>
           </div>
 
@@ -118,8 +119,8 @@
         <section class="result-surface surface">
           <div class=surface-title-row>
             <div>
-              <div class=eyebrow>Result Board</div>
-              <h2>런치데이 팀</h2>
+              <div id=resultEyebrow class=eyebrow>Result Board</div>
+              <h2 id=resultTitle>런치데이 팀</h2>
             </div>
             <div class=result-actions>
               <span id=slackChannelMeta class="hidden micro-copy"></span>
@@ -167,8 +168,35 @@
       </section>
     </div>
 
+    <div id=releaseModal class="hidden modal">
+      <div id=releaseModalBackdrop class=modal-backdrop></div>
+      <section class="modal-dialog release-modal-dialog surface">
+        <div class=surface-title-row>
+          <div>
+            <div class=eyebrow>Update Walkthrough</div>
+            <h2>타다 룰렛 v1.0.0</h2>
+          </div>
+          <button id=releaseModalCloseButton class=ghost type=button>닫기</button>
+        </div>
+        <div class=release-notes>
+          <div class=release-note-item>
+            <strong>런치데이 모드</strong>
+            <p>완주 순서대로 팀 카드를 채우고, 결과 보드에서 팀 구성을 바로 확인할 수 있습니다.</p>
+          </div>
+          <div class=release-note-item>
+            <strong>꼴지뽑기 모드</strong>
+            <p>팀 편성 대신 전체 순위를 기록하고, 마지막 완주자를 빠르게 확인할 수 있습니다.</p>
+          </div>
+          <div class=release-note-item>
+            <strong>공유와 연출</strong>
+            <p>완료 후 Slack 복사, 승리 오버레이, 인터랙티브 구슬 표정까지 한 화면에서 이어집니다.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
     <div id=toastRoot class=toast-root></div>
 
-    <script type=module src=tada-lunchday-roulette.f0c0f5ba.js></script>
+    <script type=module src=tada-lunchday-roulette.6438b498.js></script>
   
 
