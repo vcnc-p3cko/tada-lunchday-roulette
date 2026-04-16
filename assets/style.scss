@@ -375,13 +375,21 @@ h2 {
 }
 
 .summary-control-tile.is-inline-control {
-  display: grid;
-  grid-template-columns: max-content auto;
+  position: relative;
+  display: flex;
   align-items: center;
-  gap: 10px;
+}
+
+.summary-control-tile.is-inline-control > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  overflow: hidden;
 }
 
 .summary-control-tile.is-inline-control .summary-control {
+  width: 100%;
   margin-top: 0;
 }
 
