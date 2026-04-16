@@ -43,6 +43,24 @@ export class RouletteRenderer {
   protected _images: { [key: string]: HTMLImageElement } = {};
   protected _theme: ColorTheme = Themes.dark;
   protected _keywordService: KeywordService;
+  private _handlePointerMove = (event: PointerEvent) => {
+    const rect = this._canvas.getBoundingClientRect();
+    const insideX = event.clientX >= rect.left && event.clientX <= rect.right;
+    const insideY = event.clientY >= rect.top && event.clientY <= rect.bottom;
+
+    if (!insideX || !insideY) {
+      Marble.setPointerPosition(null, null);
+      return;
+    }
+
+    Marble.setPointerPosition(
+      ((event.clientX - rect.left) / rect.width) * this._canvas.width,
+      ((event.clientY - rect.top) / rect.height) * this._canvas.height
+    );
+  };
+  private _clearPointerPosition = () => {
+    Marble.setPointerPosition(null, null);
+  };
 
   constructor(protected options: RouletteRendererOptions = {}) {
     this._keywordService = this.createKeywordService();
@@ -96,6 +114,10 @@ export class RouletteRenderer {
 
     resizeObserver.observe(this._canvas);
     resizing();
+
+    window.addEventListener('pointermove', this._handlePointerMove, { passive: true });
+    window.addEventListener('pointerleave', this._clearPointerPosition);
+    window.addEventListener('blur', this._clearPointerPosition);
   }
 
   private async _loadImage(url: string): Promise<HTMLImageElement> {
