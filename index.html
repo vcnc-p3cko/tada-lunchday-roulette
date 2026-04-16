@@ -8,7 +8,7 @@
     <title>타다 룰렛</title>
     <meta
       name="description"
-      content="직원 한 명당 구슬 하나. 런치데이 팀 편성과 몇번째 뽑기를 지원하는 TADA 내부용 룰렛입니다."
+      content="직원 한 명당 구슬 하나. 런치데이 팀 편성과 뽑기를 지원하는 TADA 내부용 룰렛입니다."
     />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -28,7 +28,7 @@
             <button id="versionButton" class="version-tag" type="button">v1.0.0</button>
           </div>
           <p id="appSubtitle" class="visually-hidden">
-            직원 한 명당 구슬 하나. 런치데이 팀 편성과 몇번째 뽑기를 지원하는 TADA 내부용 룰렛입니다.
+            직원 한 명당 구슬 하나. 런치데이 팀 편성과 뽑기를 지원하는 TADA 내부용 룰렛입니다.
           </p>
           <p id="configMeta" class="visually-hidden">
             환경설정을 불러오는 중입니다.
@@ -38,10 +38,10 @@
         <section class="selection-surface">
           <div class="mode-switch" role="tablist" aria-label="룰렛 모드 선택">
             <button id="modeLunchdayButton" class="mode-switch-button is-active" type="button">런치데이</button>
-            <button id="modeLastPlaceButton" class="mode-switch-button" type="button">몇번째 뽑기</button>
+            <button id="modeLastPlaceButton" class="mode-switch-button" type="button">뽑기</button>
           </div>
 
-          <div class="summary-grid">
+          <div id="summaryGrid" class="summary-grid">
             <div class="summary-tile">
               <span>전체 인원</span>
               <strong id="totalEmployeeCount">0</strong>
@@ -50,7 +50,7 @@
               <span>선택 인원</span>
               <strong id="selectedCount">0</strong>
             </div>
-            <div class="summary-tile summary-control-tile">
+            <div id="teamCountTile" class="summary-tile summary-control-tile">
               <span id="teamCountLabel">팀 갯수</span>
               <div id="teamCountControl" class="summary-control">
                 <button id="teamCountMinus" class="stepper-button" type="button" aria-label="팀 갯수 줄이기">-</button>
@@ -58,7 +58,7 @@
                 <button id="teamCountPlus" class="stepper-button" type="button" aria-label="팀 갯수 늘리기">+</button>
               </div>
             </div>
-            <div class="summary-tile summary-control-tile">
+            <div id="teamSizeTile" class="summary-tile summary-control-tile">
               <span id="teamSizeLabel">팀당 인원</span>
               <div id="teamSizeControl" class="summary-control">
                 <button id="rankFirstButton" class="stepper-button rank-edge-button" type="button" aria-label="첫 번째 순위로 이동">«</button>
@@ -132,10 +132,10 @@
           <div id="updateMarquee" class="update-marquee hidden"></div>
           <div id="finishOverlay" class="finish-overlay hidden" aria-hidden="true">
             <div class="finish-overlay-copy">
-              <span>HAPPY</span>
-              <span>HAPPY</span>
-              <span>LUNCH</span>
-              <span>DAY</span>
+              <span id="finishOverlayLineOne">HAPPY</span>
+              <span id="finishOverlayLineTwo">HAPPY</span>
+              <span id="finishOverlayLineThree">LUNCH</span>
+              <span id="finishOverlayLineFour">DAY</span>
             </div>
           </div>
         </section>
@@ -209,13 +209,13 @@
         <div class="release-notes">
           <div class="release-note-item">
             <span class="release-commit">dd41192</span>
-            <strong>몇번째 뽑기 컨트롤</strong>
+            <strong>뽑기 컨트롤</strong>
             <p>원하는 순위를 지정하는 모드로 바꾸고, 첫/이전/다음/마지막 순위 이동 버튼을 추가했습니다.</p>
           </div>
           <div class="release-note-item">
             <span class="release-commit">9fc8dbe</span>
             <strong>룰렛 모드와 릴리즈 노트</strong>
-            <p>런치데이와 몇번째 뽑기 흐름을 분리하고, 버전 태그에서 변경 이력을 볼 수 있게 했습니다.</p>
+            <p>런치데이와 뽑기 흐름을 분리하고, 버전 태그에서 변경 이력을 볼 수 있게 했습니다.</p>
           </div>
           <div class="release-note-item">
             <span class="release-commit">4d7c846</span>

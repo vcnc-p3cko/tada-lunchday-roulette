@@ -338,6 +338,14 @@ h2 {
   gap: 8px;
 }
 
+.summary-grid.is-rank-mode .summary-tile.is-hidden-in-rank {
+  display: none !important;
+}
+
+.summary-grid.is-rank-mode .summary-tile.is-wide-in-rank {
+  grid-column: 1 / -1;
+}
+
 .summary-tile {
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.52);
@@ -364,6 +372,17 @@ h2 {
   padding-bottom: 8px;
 }
 
+.summary-control-tile.is-inline-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.summary-control-tile.is-inline-control .summary-control {
+  margin-top: 0;
+}
+
 .summary-control {
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr) 28px;
@@ -381,8 +400,13 @@ h2 {
 }
 
 .summary-control.is-rank-picker {
-  grid-template-columns: 24px 24px minmax(0, 1fr) 24px 24px;
-  gap: 5px;
+  grid-template-columns: 34px 34px minmax(70px, 1fr) 34px 34px;
+  gap: 8px;
+}
+
+.summary-control.is-rank-picker .stepper-button {
+  width: 34px;
+  height: 28px;
 }
 
 .summary-control strong {
@@ -394,11 +418,11 @@ h2 {
   text-overflow: ellipsis;
 }
 
-.rank-edge-button {
+.stepper-button.rank-edge-button {
   display: none;
 }
 
-.summary-control.is-rank-picker .rank-edge-button {
+.summary-control.is-rank-picker .stepper-button.rank-edge-button {
   display: inline-flex;
 }
 
@@ -762,6 +786,18 @@ button.ghost {
 
 .finish-overlay-copy span:nth-child(4) {
   margin-left: 0.58em;
+}
+
+.finish-overlay.is-rank-result .finish-overlay-copy span:nth-child(3) {
+  color: #f7fff8;
+  letter-spacing: -0.01em;
+  text-shadow:
+    0 0 14px rgba(212, 255, 232, 0.44),
+    0 10px 22px rgba(0, 0, 0, 0.38);
+}
+
+.finish-overlay.is-rank-result .finish-overlay-copy span:nth-child(4) {
+  margin-left: 0;
 }
 
 .hidden {
