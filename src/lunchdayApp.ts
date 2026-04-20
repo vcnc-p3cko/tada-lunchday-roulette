@@ -1106,26 +1106,13 @@ export class LunchdayApp {
       ].join('\n');
     }
 
-    const header = [
-      `*${this.config.title} 런치데이 결과*`,
-      `총 ${selectedCount}명 · ${this.runState.teamBuckets.length}개 팀`,
-    ];
-    const teamSections = this.runState.teamBuckets.map((team) => {
-      const lines = [`*${team.teamCode.replace('TEAM-', '팀')}* (${team.members.length}/${team.targetSize})`];
-
-      if (!team.members.length) {
-        lines.push('• 대기 중');
-        return lines.join('\n');
-      }
-
-      team.members.forEach((member) => {
-        lines.push(`• ${member.name} | ${member.team}`);
-      });
-
-      return lines.join('\n');
+    const teamLines = this.runState.teamBuckets.map((team) => {
+      const teamLabel = team.teamCode.replace('TEAM-', '팀');
+      const memberNames = team.members.map((member) => member.name).join(', ') || '대기 중';
+      return `*${teamLabel}* : ${memberNames}`;
     });
 
-    return [...header, '', ...teamSections].join('\n\n');
+    return [`*${formatKstDate(new Date())} 런치데이 조편성 안내*`, '', ...teamLines].join('\n');
   }
 
   private appendLog(message: string) {
@@ -1377,6 +1364,17 @@ function splitEmployeeLine(line: string): string[] {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
+}
+
+function formatKstDate(date: Date): string {
+  const parts = new Intl.DateTimeFormat('sv-SE', {
+    day: '2-digit',
+    month: '2-digit',
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+  }).formatToParts(date);
+  const dateParts = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${dateParts.year}-${dateParts.month}-${dateParts.day}`;
 }
 
 async function copyTextToClipboard(text: string): Promise<void> {

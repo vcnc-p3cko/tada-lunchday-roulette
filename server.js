@@ -169,33 +169,36 @@ function normalizeString(value, fallback) {
 }
 
 function buildSlackMessage(payload) {
-  const title = normalizeString(payload?.title, '타다 룰렛 결과');
-  const organization = normalizeString(payload?.organization, '타다');
   const teams = Array.isArray(payload?.teams) ? payload.teams : [];
 
   if (!teams.length) {
     throw new Error('게시할 팀 결과가 없습니다.');
   }
 
-  const lines = [`${title}`, `${organization} 런치데이 결과`];
+  const lines = [`*${formatKstDate(new Date())} 런치데이 조편성 안내*`, ''];
 
   teams.forEach((team) => {
-    const teamLabel = normalizeString(team?.teamLabel, '런치팀');
-    lines.push('');
-    lines.push(`[${teamLabel}]`);
-
+    const teamLabel = normalizeString(team?.teamCode, team?.teamLabel || '팀').replace('TEAM-', '팀');
     const members = Array.isArray(team?.members) ? team.members : [];
     if (!members.length) {
-      lines.push('- 대기 중');
+      lines.push(`*${teamLabel}* : 대기 중`);
       return;
     }
 
-    members.forEach((member) => {
-      const name = normalizeString(member?.name, '이름 미지정');
-      const memberTeam = normalizeString(member?.team, '미지정 팀');
-      lines.push(`- ${name} | ${memberTeam}`);
-    });
+    const memberNames = members.map((member) => normalizeString(member?.name, '이름 미지정')).join(', ');
+    lines.push(`*${teamLabel}* : ${memberNames}`);
   });
 
   return lines.join('\n');
+}
+
+function formatKstDate(date) {
+  const parts = new Intl.DateTimeFormat('sv-SE', {
+    day: '2-digit',
+    month: '2-digit',
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+  }).formatToParts(date);
+  const dateParts = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${dateParts.year}-${dateParts.month}-${dateParts.day}`;
 }
