@@ -1,0 +1,196 @@
+/* 타다 투표 페이지 보조 스타일 — Astryx 토큰 기반. 레이아웃/컴포넌트는 Astryx가 담당하고,
+   여기에는 라이브 대시보드(순위 레이스)처럼 디자인 시스템 밖의 연출만 둡니다. */
+
+body {
+  background: var(--color-background-body, #faf9f7);
+  margin: 0;
+}
+
+#voteRoot {
+  display: flex;
+  justify-content: center;
+}
+
+/* 사진이 있는 항목은 사진이 메인 — 카드 상단에 크게 표시 */
+.vote-item-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+/* ---------------------------------- */
+/* 라이브 대시보드 오버레이              */
+/* ---------------------------------- */
+
+body.board-open {
+  overflow: hidden;
+}
+
+.vote-board {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: clamp(20px, 3.4vw, 44px);
+  background: var(--color-background-body, #faf9f7);
+  overflow-y: auto;
+}
+
+.vote-board-countdown {
+  font-family: 'Teko', 'Space Grotesk', sans-serif;
+  font-size: clamp(38px, 5vw, 64px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent, #0f766e);
+}
+
+.vote-board-countdown.is-urgent {
+  color: var(--color-text-error, #b03434);
+  animation: vote-countdown-pulse 1s ease-in-out infinite;
+}
+
+@keyframes vote-countdown-pulse {
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.vote-board-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  flex: 1;
+}
+
+.vote-board-row {
+  display: grid;
+  grid-template-columns: 44px auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border: 1px solid var(--color-border, rgba(0, 0, 0, 0.12));
+  border-radius: var(--radius-container, 14px);
+  background: var(--color-background-surface, #fff);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  will-change: transform;
+}
+
+.vote-board-row.rank-1 {
+  border-color: rgba(216, 160, 44, 0.6);
+  background: linear-gradient(120deg, rgba(246, 210, 120, 0.28), var(--color-background-surface, #fff));
+}
+
+.vote-board-row:not(:has(.vote-board-thumb)) {
+  grid-template-columns: 44px 1fr auto;
+}
+
+.vote-board-rank {
+  font-family: 'Teko', 'Space Grotesk', sans-serif;
+  font-size: 32px;
+  line-height: 1;
+  text-align: center;
+  color: var(--color-accent, #0f766e);
+}
+
+.vote-board-row.rank-1 .vote-board-rank {
+  font-size: 36px;
+}
+
+/* 사진이 메인 콘텐츠 — 대시보드에서도 크게 (4:3) */
+.vote-board-thumb {
+  width: clamp(96px, 12vw, 168px);
+  height: clamp(72px, 9vw, 126px);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.06) center / cover no-repeat;
+  border: 1px solid var(--color-border, rgba(0, 0, 0, 0.12));
+}
+
+.vote-board-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.vote-board-title {
+  font-size: clamp(16px, 2vw, 21px);
+  font-weight: 800;
+  color: var(--color-text-primary, #1a1a1a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vote-board-track {
+  display: block;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.vote-board-fill {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  border-radius: 999px;
+  background: var(--color-accent, #0f766e);
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.vote-board-row.rank-1 .vote-board-fill {
+  background: linear-gradient(90deg, #d8a02c, #f0c060);
+}
+
+.vote-board-count {
+  font-family: 'Teko', 'Space Grotesk', sans-serif;
+  font-size: clamp(24px, 2.6vw, 34px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.vote-board-count.bump {
+  animation: vote-count-bump 0.5s ease;
+}
+
+@keyframes vote-count-bump {
+  30% {
+    transform: scale(1.35);
+    color: var(--color-accent, #0f766e);
+  }
+}
+
+.vote-board.is-final .vote-board-row.rank-1 {
+  animation: vote-winner-glow 1.6s ease-in-out infinite;
+}
+
+@keyframes vote-winner-glow {
+  50% {
+    box-shadow: 0 0 34px rgba(216, 160, 44, 0.5);
+  }
+}
+
+@media (max-width: 640px) {
+  .vote-board-row {
+    grid-template-columns: 32px auto 1fr auto;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .vote-board-row:not(:has(.vote-board-thumb)) {
+    grid-template-columns: 32px 1fr auto;
+  }
+
+  .vote-board-thumb {
+    width: 84px;
+    height: 63px;
+  }
+}
